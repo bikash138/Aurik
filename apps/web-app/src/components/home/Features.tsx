@@ -2,15 +2,13 @@ import { ArrowRight, Lock } from "lucide-react";
 
 export function Features() {
   return (
-    <section className="px-6 py-24">
+    <section id="features" className="px-6 py-24">
       {/* Header */}
       <div className="max-w-5xl mx-auto text-center space-y-3 mb-12">
         <p className="text-eyebrow" style={{ color: "var(--color-text-muted)" }}>
           FEATURES
         </p>
-        <h2 className="text-h1 text-heading">
-          Auth that just works.
-        </h2>
+        <h2 className="text-h1 text-heading">Auth that just works.</h2>
         <p
           className="text-body-lg max-w-xl mx-auto"
           style={{ color: "var(--color-text-body)" }}
@@ -30,7 +28,7 @@ export function Features() {
             className="card-green relative overflow-hidden flex flex-col gap-5"
             style={{ minHeight: "460px" }}
           >
-            {/* Decorative concentric circles at top-right corner */}
+            {/* Decorative concentric circles */}
             {[80, 140, 200, 260, 320].map((r, i) => (
               <div
                 key={i}
@@ -61,7 +59,6 @@ export function Features() {
                 OAUTH 2.0
               </span>
 
-
               {/* Big heading */}
               <div className="text-h1">
                 <p style={{ color: "var(--color-text-on-brand)" }}>Log in.</p>
@@ -70,8 +67,11 @@ export function Features() {
 
               {/* Description */}
               <p
-                className="text-sm leading-relaxed"
-                style={{ color: "var(--color-text-on-brand-muted)" }}
+                style={{
+                  color: "var(--color-text-on-brand-muted)",
+                  fontSize: "15px",
+                  lineHeight: "1.65",
+                }}
               >
                 A hardened auth flow runs on every sign-in — PKCE, token
                 exchange, and session management — without a single line of auth
@@ -83,10 +83,7 @@ export function Features() {
 
               {/* What user sees */}
               <div className="space-y-2">
-                <p
-                  className="text-eyebrow"
-                  style={{ color: "rgba(122,154,120,0.7)" }}
-                >
+                <p className="text-eyebrow" style={{ color: "rgba(122,154,120,0.7)" }}>
                   WHAT YOUR USER SEES
                 </p>
                 <div
@@ -99,18 +96,21 @@ export function Features() {
                   <img src="/logo_white.svg" className="w-4 h-4 dark:hidden" alt="" />
                   <img src="/logo.svg" className="w-4 h-4 hidden dark:block" alt="" />
                   <span
-                    className="text-sm font-medium"
-                    style={{ color: "var(--color-text-on-brand)" }}
+                    style={{
+                      color: "var(--color-text-on-brand)",
+                      fontSize: "15px",
+                      fontWeight: 500,
+                    }}
                   >
                     Sign in with Aurik
                   </span>
                 </div>
               </div>
 
-              {/* Arrow */}
-              <div>
+              {/* Divider with arrow */}
+              <div className="flex items-center gap-3">
                 <div
-                  className="w-8 h-8 rounded-full inline-flex items-center justify-center"
+                  className="w-8 h-8 rounded-full shrink-0 inline-flex items-center justify-center"
                   style={{ border: "0.5px solid rgba(255,255,255,0.2)" }}
                 >
                   <ArrowRight
@@ -118,19 +118,21 @@ export function Features() {
                     style={{ color: "var(--color-text-on-brand)" }}
                   />
                 </div>
+                <div className="flex-1 h-px" style={{ background: "rgba(255,255,255,0.1)" }} />
               </div>
 
               {/* What Aurik handles */}
               <div className="space-y-2 mt-auto">
-                <p
-                  className="text-eyebrow"
-                  style={{ color: "rgba(122,154,120,0.7)" }}
-                >
+                <p className="text-eyebrow" style={{ color: "rgba(122,154,120,0.7)" }}>
                   WHAT AURIK HANDLES
                 </p>
                 <p
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--color-lime)" }}
+                  style={{
+                    color: "var(--color-lime)",
+                    fontSize: "15px",
+                    fontWeight: 600,
+                    lineHeight: "1.6",
+                  }}
                 >
                   PKCE · token exchange · redirect validation · session
                   management · user profile
@@ -154,8 +156,8 @@ export function Features() {
                 Zero secrets in the browser.
               </h3>
               <p
-                className="text-sm mb-4"
-                style={{ color: "var(--color-text-body)" }}
+                className="mb-4"
+                style={{ color: "var(--color-text-body)", fontSize: "15px", lineHeight: "1.65" }}
               >
                 Proof Key for Code Exchange is enforced on every public client —
                 auth code interception is impossible.
@@ -184,34 +186,30 @@ export function Features() {
               </h3>
               <div className="space-y-2">
                 <div
-                  className="px-3 py-2 rounded-lg text-xs font-mono truncate"
+                  className="px-3 py-2 rounded-lg font-mono truncate"
                   style={{
                     background: "var(--color-page-bg)",
                     border: "0.5px solid var(--color-border)",
                     color: "var(--color-text-muted)",
+                    fontSize: "13px",
                   }}
                 >
                   eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9...
                 </div>
                 <div
-                  className="flex items-center gap-2 text-xs"
-                  style={{ color: "var(--color-text-muted)" }}
+                  className="flex items-center gap-2"
+                  style={{ color: "var(--color-text-muted)", fontSize: "13px" }}
                 >
-                  <div
-                    className="flex-1 h-px"
-                    style={{ background: "var(--color-border)" }}
-                  />
+                  <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
                   <span>decoded</span>
-                  <div
-                    className="flex-1 h-px"
-                    style={{ background: "var(--color-border)" }}
-                  />
+                  <div className="flex-1 h-px" style={{ background: "var(--color-border)" }} />
                 </div>
                 <div
-                  className="px-3 py-2 rounded-lg text-xs font-mono"
+                  className="px-3 py-2 rounded-lg font-mono"
                   style={{
                     background: "var(--color-page-bg)",
                     border: "0.5px solid var(--color-border)",
+                    fontSize: "13px",
                   }}
                 >
                   <span style={{ color: "var(--color-lime-dark)" }}>sub</span>
@@ -234,14 +232,11 @@ export function Features() {
 
           {/* SSO */}
           <div className="card space-y-3">
-            <p
-              className="text-eyebrow"
-              style={{ color: "var(--color-text-muted)" }}
-            >
+            <p className="text-eyebrow" style={{ color: "var(--color-text-muted)" }}>
               03 · SSO
             </p>
             <h3 className="text-h3 text-heading">One login. All your apps.</h3>
-            <p className="text-sm" style={{ color: "var(--color-text-body)" }}>
+            <p style={{ color: "var(--color-text-body)", fontSize: "15px", lineHeight: "1.65" }}>
               Authenticate once and sessions propagate to every connected
               application automatically.
             </p>
@@ -266,13 +261,10 @@ export function Features() {
               className="w-10 h-10 rounded-xl flex items-center justify-center"
               style={{ background: "var(--color-secondary)" }}
             >
-              <Lock
-                className="w-5 h-5"
-                style={{ color: "var(--color-lime-dark)" }}
-              />
+              <Lock className="w-5 h-5" style={{ color: "var(--color-lime-dark)" }} />
             </div>
             <h3 className="text-h3 text-heading">Stays secure.</h3>
-            <p className="text-sm" style={{ color: "var(--color-text-body)" }}>
+            <p style={{ color: "var(--color-text-body)", fontSize: "15px", lineHeight: "1.65" }}>
               Tokens are signed with RS256, rotated each session, and never
               stored in plaintext. Secrets never leave the server.
             </p>
@@ -281,10 +273,7 @@ export function Features() {
           {/* Scope control */}
           <div className="card space-y-3">
             <div className="flex items-center justify-between">
-              <p
-                className="text-eyebrow"
-                style={{ color: "var(--color-text-muted)" }}
-              >
+              <p className="text-eyebrow" style={{ color: "var(--color-text-muted)" }}>
                 ALWAYS IN CONTROL
               </p>
               {/* Toggle (visual) */}
@@ -296,7 +285,7 @@ export function Features() {
               </div>
             </div>
             <h3 className="text-h3 text-heading">Grant only what you need.</h3>
-            <p className="text-sm" style={{ color: "var(--color-text-body)" }}>
+            <p style={{ color: "var(--color-text-body)", fontSize: "15px", lineHeight: "1.65" }}>
               Define exact scopes per app. Revoke any token or session from the
               dashboard in one click.
             </p>

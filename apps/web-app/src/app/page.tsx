@@ -1,4 +1,5 @@
 import Footer from "@/components/Footer";
+import { FAQ } from "@/components/home/FAQ";
 import { Features } from "@/components/home/Features";
 import { Hero } from "@/components/home/Hero";
 import { Navbar } from "@/components/home/Navbar";
@@ -12,6 +13,7 @@ export default function Home() {
       <Usage />
 
       <Features />
+      <FAQ />
 
       <Footer />
     </div>
