@@ -1,19 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import { DM_Serif_Display, DM_Mono, Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
 
 const dmSerifDisplay = DM_Serif_Display({
   subsets: ["latin"],
@@ -36,10 +26,6 @@ const dmMono = DM_Mono({
 const outfit = Outfit({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
-  // 300 → hero subheadings, feature descriptions
-  // 400 → body copy, nav links, table content
-  // 500 → card titles (h3), button text, form labels
-  // 600 → reserved for emphasis if needed (use sparingly)
   variable: "--font-body",
   display: "swap",
   preload: true,
@@ -99,6 +85,7 @@ export const metadata: Metadata = {
       follow: true,
       "max-image-preview": "large",
       "max-snippet": -1,
+      "max-video-preview": -1,
     },
   },
 };
@@ -111,16 +98,24 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`
         ${dmSerifDisplay.variable}
         ${dmMono.variable}
         ${outfit.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <TooltipProvider>
-          {children}
-          <Toaster />
-        </TooltipProvider>
+        <ThemeProvider
+          attribute={["class", "data-theme"]}
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            {children}
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
