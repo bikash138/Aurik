@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, JetBrains_Mono, Outfit } from "next/font/google";
+import { DM_Serif_Display, Fraunces, JetBrains_Mono, Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -10,6 +10,14 @@ const dmSerifDisplay = DM_Serif_Display({
   weight: ["400"],
   style: ["normal", "italic"],
   variable: "--font-display",
+  display: "swap",
+  preload: true,
+});
+
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  style: ["italic"],
+  variable: "--font-fraunces",
   display: "swap",
   preload: true,
 });
@@ -102,7 +110,8 @@ export default function RootLayout({
       className={`
         ${dmSerifDisplay.variable}
         ${jetbrainsMono.variable}
-        ${outfit.variable} h-full antialiased`}
+        ${outfit.variable}
+        ${fraunces.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <ThemeProvider
