@@ -54,12 +54,6 @@
    ════════════════════════════════════════════════════════════ */
 :root,
 [data-theme="light"] {
-
-  /* ── Font families (Next.js injects these via layout.tsx) ── */
-  --font-display: var(--font-display, Georgia, serif);
-  --font-body:    var(--font-body, system-ui, sans-serif);
-  --font-mono:    var(--font-mono, "Courier New", monospace);
-
   /* ── Type scale ── */
   --text-hero-size:    52px; --text-hero-lh:    1.1;  --text-hero-ls:    -0.02em;
   --text-h1-size:      36px; --text-h1-lh:      1.15; --text-h1-ls:      -0.02em;
@@ -89,6 +83,7 @@
   --color-lime:              #B8F04A;
   --color-lime-dark:         #2E5A1C;
   --color-lime-tint:         #E4F5D0;
+  --color-link-hover:        #111C10;
   --color-cta-bg:            #1B2D1A;
   --color-cta-text:          #B8F04A;
   --color-ghost-border:      #C4D8C0;
@@ -155,32 +150,33 @@
 [data-theme="dark"] {
 
   /* ── Aurik brand tokens ── */
-  --color-page-bg:           #131C24;
-  --color-page-bg-deep:      #0F1820;
+  --color-page-bg:           #141710;
+  --color-page-bg-deep:      #1A1E14;
   --color-brand:             #1B2D1A;
   --color-brand-deep:        #162212;
   --color-card-green:        #1B2B1A;
-  --color-border:               #1E2D3A;
-  --color-border-subtle:        #2A3D2E;
-  --color-text-heading:      #E8EFF5;
-  --color-text-body:         #4E6878;
-  --color-text-muted:        #2E4455;
+  --color-border:               #252A1E;
+  --color-border-subtle:        #2E3428;
+  --color-text-heading:      #DDE5D8;
+  --color-text-body:         #8A9E84;
+  --color-text-muted:        #526050;
   --color-text-on-brand:     #E8EFF5;
   --color-text-on-brand-muted: #7A9A78;
   --color-lime:              #B8F04A;
   --color-lime-dark:         #B8F04A;
   --color-lime-tint:         rgba(184,240,74,0.08);
+  --color-link-hover:        #96C835;
   --color-cta-bg:            #B8F04A;
   --color-cta-text:          #162008;
   --color-ghost-border:      rgba(184,240,74,0.25);
   --color-ghost-text:        #B8F04A;
-  --color-nav-link:          #4E6878;
+  --color-nav-link:          #8A9E84;
   --color-mono-text:         #B8F04A;
   --color-stat-num:          #B8F04A;
-  --color-sidebar-bg:        #0F1820;
+  --color-sidebar-bg:        #0E1109;
   --color-sidebar-active-bg: #1B2B1A;
   --color-sidebar-active-text: #B8F04A;
-  --color-sidebar-inactive:  #4E6878;
+  --color-sidebar-inactive:  #8A9E84;
   --color-badge-active-bg:   #1B2B1A; --color-badge-active-text:  #B8F04A;
   --color-badge-revoked-bg:  #2D1A1A; --color-badge-revoked-text: #F08080;
   --color-badge-warn-bg:     #2D2410; --color-badge-warn-text:    #EAB34A;
@@ -195,23 +191,23 @@
   .text-italic-accent { color: #B8F04A; }
 
   /* ── Shadcn semantic tokens ── */
-  --background:         #131C24;
-  --foreground:         #E8EFF5;
-  --card:               #1A2530;
-  --card-foreground:    #E8EFF5;
-  --popover:            #1A2530;
-  --popover-foreground: #E8EFF5;
+  --background:         #141710;
+  --foreground:         #DDE5D8;
+  --card:               #1A1E15;
+  --card-foreground:    #DDE5D8;
+  --popover:            #1A1E15;
+  --popover-foreground: #DDE5D8;
   --primary:            #B8F04A;
   --primary-foreground: #162008;
-  --secondary:          #1E2C3A;
+  --secondary:          #1E2419;
   --secondary-foreground: #B8F04A;
-  --muted:              #1E2C3A;
-  --muted-foreground:   #4E6878;
+  --muted:              #1E2419;
+  --muted-foreground:   #8A9E84;
   --accent:             rgba(184,240,74,0.08);
   --accent-foreground:  #B8F04A;
   --destructive:        #F08080;
-  --border:             #1E2D3A;
-  --input:              #0F1820;
+  --border:             #252A1E;
+  --input:              #0E1109;
   --ring:               #B8F04A;
   --sidebar:            #0F1820;
   --sidebar-foreground: #E8EFF5;
@@ -231,14 +227,14 @@
 /* OS dark mode fallback (when no data-theme set) */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --color-page-bg: #131C24; --color-page-bg-deep: #0F1820;
-    --color-text-heading: #E8EFF5; --color-text-body: #4E6878; --color-text-muted: #2E4455;
+    --color-page-bg: #141710; --color-page-bg-deep: #1A1E14;
+    --color-text-heading: #DDE5D8; --color-text-body: #8A9E84; --color-text-muted: #526050;
     --color-lime-dark: #B8F04A; --color-lime-tint: rgba(184,240,74,0.08);
     --color-cta-bg: #B8F04A; --color-cta-text: #162008;
     --color-mono-text: #B8F04A; --color-stat-num: #B8F04A;
-    --background: #131C24; --foreground: #E8EFF5;
-    --card: #1A2530; --card-foreground: #E8EFF5;
-    --popover: #1A2530; --popover-foreground: #E8EFF5;
+    --background: #141710; --foreground: #E8EFF5;
+    --card: #1A1E15; --card-foreground: #DDE5D8;
+    --popover: #1A1E15; --popover-foreground: #DDE5D8;
     --primary: #B8F04A; --primary-foreground: #162008;
     --secondary: #1E2C3A; --secondary-foreground: #B8F04A;
     --muted: #1E2C3A; --muted-foreground: #4E6878;

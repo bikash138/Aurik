@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, DM_Mono, Outfit } from "next/font/google";
+import { DM_Serif_Display, JetBrains_Mono, Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -14,7 +14,7 @@ const dmSerifDisplay = DM_Serif_Display({
   preload: true,
 });
 
-const dmMono = DM_Mono({
+const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   style: ["normal"],
@@ -101,7 +101,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`
         ${dmSerifDisplay.variable}
-        ${dmMono.variable}
+        ${jetbrainsMono.variable}
         ${outfit.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
