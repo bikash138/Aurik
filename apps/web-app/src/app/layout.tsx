@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Serif_Display, DM_Mono, Outfit } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import "./globals.css";
@@ -12,6 +13,36 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
+  preload: true,
+});
+
+const dmMono = DM_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  style: ["normal"],
+  variable: "--font-mono",
+  display: "swap",
+  preload: true,
+});
+
+const outfit = Outfit({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  // 300 → hero subheadings, feature descriptions
+  // 400 → body copy, nav links, table content
+  // 500 → card titles (h3), button text, form labels
+  // 600 → reserved for emphasis if needed (use sparingly)
+  variable: "--font-body",
+  display: "swap",
+  preload: true,
 });
 
 export const metadata: Metadata = {
@@ -80,7 +111,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`
+        ${dmSerifDisplay.variable}
+        ${dmMono.variable}
+        ${outfit.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         <TooltipProvider>
