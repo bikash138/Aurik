@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Fraunces, JetBrains_Mono, Outfit } from "next/font/google";
+import {
+  DM_Serif_Display,
+  Fraunces,
+  JetBrains_Mono,
+  Outfit,
+} from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -59,6 +64,11 @@ export const metadata: Metadata = {
 
   authors: [{ name: "Aurik", url: "https://aurik.bikashshaw.in" }],
   creator: "Aurik",
+  icons: {
+    icon: "/logo_white.svg",
+    shortcut: "/logo_white.svg",
+    apple: "/logo_white.svg",
+  },
 
   openGraph: {
     type: "website",

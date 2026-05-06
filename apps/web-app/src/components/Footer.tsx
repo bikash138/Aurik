@@ -10,7 +10,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-12 pb-12">
           {/* Brand column */}
           <div className="flex flex-col gap-4">
-            <span className="text-h2 text-heading">Aurik</span>
+            <span className="text-2xl font-semibold text-heading font-sans tracking-tight">Aurik</span>
             <p className="text-body text-body-color max-w-xs">
               The simple identity platform. Add secure sign-in, OAuth 2.0, and
               user management to any application with ease.
