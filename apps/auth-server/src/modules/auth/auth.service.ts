@@ -9,7 +9,7 @@ import type {
   SigninRequest,
   SignupRequest,
   VerifyEmailRequest,
-} from "./auth.schema.js";
+} from "@aurik/zod/auth";
 import { VerificationTokenType } from "@aurik/database";
 
 export class AuthService {

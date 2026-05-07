@@ -1,6 +1,6 @@
-"use client";
-
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SigninBodySchema, type SigninRequest } from "@aurik/zod/auth";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -10,13 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AuthAPI } from "@/api/auth.api";
-
 import { useState } from "react";
-
-type SigninFormValues = {
-  email: string;
-  password: string;
-};
 
 export default function Signin() {
   const router = useRouter();
@@ -25,9 +19,11 @@ export default function Signin() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SigninFormValues>();
+  } = useForm<SigninRequest>({
+    resolver: zodResolver(SigninBodySchema),
+  });
 
-  const onSubmit = async (data: SigninFormValues) => {
+  const onSubmit = async (data: SigninRequest) => {
     setIsLoading(true);
     try {
       const result = await AuthAPI.signin(data);
@@ -96,15 +92,9 @@ export default function Signin() {
               <Input
                 id="email"
                 type="text"
-                placeholder="Email or phone"
+                placeholder="Email"
                 className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                {...register("email", {
-                  required: "Enter an email or phone number",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$|^\+?[0-9]{7,15}$/,
-                    message: "Enter a valid email or phone number",
-                  },
-                })}
+                {...register("email")}
               />
               {errors.email && (
                 <p className="text-sm text-destructive">
@@ -125,13 +115,7 @@ export default function Signin() {
                 type="password"
                 placeholder="Password"
                 className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                {...register("password", {
-                  required: "Enter your password",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                })}
+                {...register("password")}
               />
               {errors.password && (
                 <p className="text-sm text-destructive">

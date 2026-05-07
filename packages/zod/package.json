@@ -1,0 +1,24 @@
+{
+  "name": "@aurik/zod",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./auth": {
+      "types": "./src/auth.schema.ts",
+      "default": "./dist/auth.schema.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@aurik/typescript-config": "workspace:*",
+    "@types/node": "^22.15.3",
+    "typescript": "6.0.2"
+  }
+}

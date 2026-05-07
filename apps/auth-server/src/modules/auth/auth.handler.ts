@@ -5,7 +5,7 @@ import {
   SigninBodySchema,
   SignupBodySchema,
   VerifyEmailBodySchema,
-} from "./auth.schema.js";
+} from "@aurik/zod/auth";
 import { AuthService } from "./auth.service.js";
 import { logger } from "@/config/logger.config.js";
 import { env } from "@/config/env.config.js";
@@ -48,7 +48,7 @@ export class AuthHandler {
     },
   );
 
-  public static forgotPassowrd = asyncHandler(
+  public static forgotPassword = asyncHandler(
     async (req: Request, res: Response) => {
       const body = ForgotPasswordBodySchema.parse(req.body);
       const result = await AuthService.forgotPassword(body);
@@ -57,7 +57,7 @@ export class AuthHandler {
     },
   );
 
-  public static resetPassowrd = asyncHandler(
+  public static resetPassword = asyncHandler(
     async (req: Request, res: Response) => {
       const body = ResetPasswordBodySchema.parse(req.body);
       const result = await AuthService.resetPassword(body);

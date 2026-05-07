@@ -1,6 +1,8 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SignupBodySchema, type SignupRequest } from "@aurik/zod/auth";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
@@ -10,15 +12,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AuthAPI } from "@/api/auth.api";
-
 import { useState } from "react";
-
-type SignupFormValues = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  password: string;
-};
 
 export default function Signup() {
   const router = useRouter();
@@ -27,9 +21,11 @@ export default function Signup() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<SignupFormValues>();
+  } = useForm<SignupRequest>({
+    resolver: zodResolver(SignupBodySchema),
+  });
 
-  const onSubmit = async (data: SignupFormValues) => {
+  const onSubmit = async (data: SignupRequest) => {
     setIsLoading(true);
     try {
       const result = await AuthAPI.signup(data);
@@ -173,7 +169,7 @@ export default function Signup() {
                   type="text"
                   placeholder="First name"
                   className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                  {...register("firstName", { required: "Required" })}
+                  {...register("firstName")}
                 />
                 {errors.firstName && (
                   <p className="text-sm text-destructive">
@@ -194,7 +190,7 @@ export default function Signup() {
                   type="text"
                   placeholder="Last name"
                   className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                  {...register("lastName", { required: "Required" })}
+                  {...register("lastName")}
                 />
                 {errors.lastName && (
                   <p className="text-sm text-destructive">
@@ -216,13 +212,7 @@ export default function Signup() {
                 type="text"
                 placeholder="Email"
                 className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                {...register("email", {
-                  required: "Enter an email address",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Enter a valid email address",
-                  },
-                })}
+                {...register("email")}
               />
               {errors.email && (
                 <p className="text-sm text-destructive">
@@ -243,10 +233,7 @@ export default function Signup() {
                 type="password"
                 placeholder="Password"
                 className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                {...register("password", {
-                  required: "Enter a password",
-                  minLength: { value: 8, message: "Use 8 characters or more" },
-                })}
+                {...register("password")}
               />
               {errors.password && (
                 <p className="text-sm text-destructive">
