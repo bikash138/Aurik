@@ -7,6 +7,7 @@ import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import { AuthAPI } from "@/api/auth.api";
+import { toast } from "sonner";
 
 type VerifyState = "verifying" | "success" | "error";
 
@@ -24,10 +25,13 @@ function VerifyEmailContent() {
 
     const verify = async () => {
       try {
-        await AuthAPI.verifyEmail({ token });
+        const result = await AuthAPI.verifyEmail({ token });
+        toast.success(result.message);
         setState("success");
-      } catch (error) {
-        console.error("Email verification failed", error);
+      } catch (error: any) {
+        const message =
+          error.response?.data?.error?.message || "Verification failed";
+        toast.error(message);
         setState("error");
       }
     };

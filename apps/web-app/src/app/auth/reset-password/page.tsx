@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AuthAPI } from "@/api/auth.api";
+import { toast } from "sonner";
 
 const ResetPasswordFormSchema = z
   .object({
@@ -46,13 +47,16 @@ function ResetPasswordForm() {
     }
 
     try {
-      await AuthAPI.resetPassword({
+      const result = await AuthAPI.resetPassword({
         token,
         newPassword: data.newPassword,
       });
+      toast.success(result.message);
       setIsSuccess(true);
-    } catch (error) {
-      console.error("Password reset failed", error);
+    } catch (error: any) {
+      const message =
+        error.response?.data?.error?.message || "Failed to reset password";
+      toast.error(message);
     }
   };
 

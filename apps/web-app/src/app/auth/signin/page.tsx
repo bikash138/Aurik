@@ -27,16 +27,13 @@ export default function Signin() {
     setIsLoading(true);
     try {
       const result = await AuthAPI.signin(data);
-      toast.success(result.message || "Signed in successfully!");
+      toast.success(result.message);
       console.log("Logged in successfully!", result);
       router.push("/profile");
     } catch (error: any) {
       const message =
-        error.response?.data?.message ||
-        error.response?.data?.error ||
-        "Failed to sign in";
+        error.response?.data?.error?.message || "Failed to sign in";
       toast.error(message);
-      console.error("Failed to sign in", error);
     } finally {
       setIsLoading(false);
     }

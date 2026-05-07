@@ -21,6 +21,14 @@ export const localClient = axios.create({
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
+    console.error(
+      `[API Error] ${error.config?.method?.toUpperCase()} ${error.config?.url}:`,
+      {
+        status: error.response?.status,
+        message: error.response?.data?.error?.message || error.message,
+      },
+    );
+
     return Promise.reject(error);
   },
 );

@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AuthAPI } from "@/api/auth.api";
+import { toast } from "sonner";
 
 export default function ForgotPassword() {
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
@@ -28,10 +29,13 @@ export default function ForgotPassword() {
 
   const onSubmit = async (data: ForgotPasswordRequest) => {
     try {
-      await AuthAPI.forgotPassword(data);
+      const result = await AuthAPI.forgotPassword(data);
+      toast.success(result.message);
       setSubmittedEmail(data.email);
-    } catch (error) {
-      console.error("Forgot password failed", error);
+    } catch (error: any) {
+      const message =
+        error.response?.data?.error?.message || "Something went wrong";
+      toast.error(message);
     }
   };
 
