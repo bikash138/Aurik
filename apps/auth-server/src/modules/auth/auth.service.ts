@@ -1,8 +1,9 @@
-import { MailService } from "../mail/mail.service.js";
+import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
+import { MailService } from "../mail/mail.service.js";
 import { AuthRepo } from "./auth.repo.js";
 import { ApiError } from "@/core/errors/api.error.js";
-import type { SignupRequest } from "./auth.schema.js";
+import type { SigninRequest, SignupRequest } from "./auth.schema.js";
 
 export class AuthService {
   private static hashPassword(password: string) {
@@ -37,6 +38,52 @@ export class AuthService {
       email: newUser.email,
       firstName: newUser.firstName,
       lastName: newUser.lastName,
+    };
+  }
+
+  public static async signin(
+    data: SigninRequest,
+    ipAddress: string,
+    userAgent: string,
+  ) {
+    const user = await AuthRepo.getUserByEmail(data.email);
+
+    if (!user || !user.passwordHash) {
+      throw ApiError.invalidCredentials();
+    }
+
+    const isValid = this.verifyPassword(data.password, user.passwordHash);
+
+    if (!isValid) {
+      throw ApiError.invalidCredentials();
+    }
+
+    if (!user.isActive) {
+      throw ApiError.forbidden("ACCOUNT_SUSPENDED");
+    }
+
+    if (!user.isEmailVerified) {
+      throw ApiError.forbidden("EMAIL_NOT_VERIFIED");
+    }
+
+    const sessionToken = crypto.randomBytes(32).toString("hex");
+
+    await AuthRepo.recordSuccessfulLogin(
+      user.id,
+      sessionToken,
+      ipAddress,
+      userAgent,
+    );
+
+    return {
+      sessionToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isEmailVerified: user.isEmailVerified,
+      },
     };
   }
 }

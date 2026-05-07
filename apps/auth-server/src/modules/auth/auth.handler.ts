@@ -1,20 +1,35 @@
 import type { Request, Response } from "express";
-import { SignupBodySchema } from "./auth.schema.js";
+import { SigninBodySchema, SignupBodySchema } from "./auth.schema.js";
 import { AuthService } from "./auth.service.js";
 import { logger } from "@/config/logger.config.js";
+import { env } from "@/config/env.config.js";
+import { EXPIRATION_TIMES } from "@/utils/constants.js";
+import { asyncHandler } from "@/utils/async-handler.js";
 
 export class AuthHandler {
-  public static async signup(req: Request, res: Response) {
-    try {
-      const body = SignupBodySchema.parse(req.body);
-      const user = await AuthService.signup(body);
+  public static signup = asyncHandler(async (req: Request, res: Response) => {
+    const body = SignupBodySchema.parse(req.body);
+    const user = await AuthService.signup(body);
 
-      res.status(201).json({ message: "Verification email sent", data: user });
-    } catch (error) {
-      logger.error({ err: error }, "Signup failed");
-      res.status(400).json({
-        error: error instanceof Error ? error.message : "invalid_request",
-      });
-    }
-  }
+    res.status(201).json({ message: "Verification email sent", data: user });
+  });
+
+  public static signin = asyncHandler(async (req: Request, res: Response) => {
+    const body = SigninBodySchema.parse(req.body);
+    const ipAddress = req.ip || req.socket?.remoteAddress || "0.0.0.0";
+    const userAgent = req.headers["user-agent"] || "unknown";
+
+    const result = await AuthService.signin(body, ipAddress, userAgent);
+
+    res.cookie("sid", result.sessionToken, {
+      httpOnly: true,
+      secure: env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: EXPIRATION_TIMES.SESSION,
+    });
+
+    res
+      .status(200)
+      .json({ message: "Signed in successfully", data: result.user });
+  });
 }
