@@ -52,7 +52,9 @@ const UserSchema = z.object({
   email: z.string(),
   firstName: z.string(),
   lastName: z.string(),
+  profileImageUrl: z.string().nullable(),
   isEmailVerified: z.boolean(),
+  createdAt: z.date().or(z.string()),
 });
 
 /**
@@ -105,6 +107,10 @@ export const AuthResponseSchema = GenericResponseSchema.extend({
   data: UserSchema,
 });
 
+export const GetMeResponseSchema = z.object({
+  data: UserSchema,
+});
+
 export const ApiErrorResponseSchema = z.object({
   error: z.object({
     code: z.string(),
@@ -122,5 +128,6 @@ export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordBodySchema>;
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordBodySchema>;
 
 export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+export type GetMeResponse = z.infer<typeof GetMeResponseSchema>;
 export type GenericResponse = z.infer<typeof GenericResponseSchema>;
 export type ApiErrorResponse = z.infer<typeof ApiErrorResponseSchema>;

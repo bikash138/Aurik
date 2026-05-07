@@ -32,5 +32,5 @@ export async function initializeSigningKeys() {
     },
   });
 
-  console.log("New signing keys successfully seeded into the database.");
+  logger.info("New signing keys successfully seeded into the database.");
 }

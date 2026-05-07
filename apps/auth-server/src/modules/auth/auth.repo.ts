@@ -122,4 +122,43 @@ export class AuthRepo {
       }),
     ]);
   }
+
+  public static async getSession(token: string) {
+    return await prisma.session.findUnique({ where: { token } });
+  }
+
+  public static async deleteSessionAndLog(
+    tokenId: string,
+    userId: string,
+    ipAddress?: string | null,
+  ): Promise<void> {
+    await prisma.$transaction([
+      prisma.session.delete({ where: { id: tokenId } }),
+      prisma.auditLog.create({
+        data: {
+          action: "user.logout",
+          userId,
+          ipAddress: ipAddress ?? undefined,
+        },
+      }),
+    ]);
+  }
+
+  public static async getSessionWithUser(token: string) {
+    return await prisma.session.findUnique({
+      where: { token },
+      include: { user: true },
+    });
+  }
+
+  public static async deleteSession(tokenId: string) {
+    return await prisma.session.delete({ where: { id: tokenId } });
+  }
+
+  public static async extendSession(tokenId: string, expiresAt: Date) {
+    return await prisma.session.update({
+      where: { id: tokenId },
+      data: { expiresAt },
+    });
+  }
 }

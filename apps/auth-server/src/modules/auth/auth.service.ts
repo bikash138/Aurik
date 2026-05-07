@@ -11,6 +11,7 @@ import type {
   VerifyEmailRequest,
 } from "@aurik/zod/auth";
 import { VerificationTokenType } from "@aurik/database";
+import { EXPIRATION_TIMES } from "@/utils/constants.js";
 
 export class AuthService {
   private static hashPassword(password: string) {
@@ -157,5 +158,43 @@ export class AuthService {
     await AuthRepo.resetPasswordTransaction(record.userId, record.id, hash);
 
     return { message: "Password reset successfully" };
+  }
+
+  public static async signout(sessionToken: string) {
+    const session = await AuthRepo.getSession(sessionToken);
+
+    if (!session) return;
+
+    await AuthRepo.deleteSessionAndLog(
+      session.id,
+      session.userId,
+      session.ipAddress,
+    );
+  }
+
+  public static async getMe(sessionToken: string) {
+    const session = await AuthRepo.getSessionWithUser(sessionToken);
+
+    if (!session) {
+      throw ApiError.unauthorized("Invalid session");
+    }
+
+    if (session.expiresAt < new Date()) {
+      await AuthRepo.deleteSession(session.id);
+      throw ApiError.unauthorized("Session expired");
+    }
+
+    const newExpiresAt = new Date(Date.now() + EXPIRATION_TIMES.SESSION);
+    await AuthRepo.extendSession(session.id, newExpiresAt);
+
+    return {
+      id: session.user.id,
+      email: session.user.email,
+      firstName: session.user.firstName,
+      lastName: session.user.lastName,
+      profileImageUrl: session.user.profileImageUrl,
+      isEmailVerified: session.user.isEmailVerified,
+      createdAt: session.user.createdAt,
+    };
   }
 }
