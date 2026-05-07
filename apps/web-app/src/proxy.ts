@@ -7,7 +7,12 @@ export default function proxy(request: NextRequest) {
   const isAuthenticated = !!sessionCookie?.value;
 
   if (pathname.startsWith("/auth/")) {
-    if (isAuthenticated && pathname !== "/auth/consent") {
+    const isActionPage =
+      pathname === "/auth/verify-email" ||
+      pathname === "/auth/reset-password" ||
+      pathname === "/auth/consent";
+
+    if (isAuthenticated && !isActionPage) {
       return NextResponse.redirect(new URL("/developer", request.url));
     }
     return NextResponse.next();

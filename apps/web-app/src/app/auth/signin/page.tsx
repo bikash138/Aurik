@@ -103,12 +103,20 @@ export default function Signin() {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <Label
-                htmlFor="password"
-                className="text-sm text-(--color-text-body) dark:text-foreground/80"
-              >
-                Password
-              </Label>
+              <div className="flex items-center justify-between">
+                <Label
+                  htmlFor="password"
+                  className="text-sm text-(--color-text-body) dark:text-foreground/80"
+                >
+                  Password
+                </Label>
+                <Link
+                  href="/auth/forget-password"
+                  className="text-xs text-(--color-lime-dark) hover:opacity-75 font-medium transition-opacity no-underline hover:no-underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"

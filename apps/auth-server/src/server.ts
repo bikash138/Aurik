@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import { logger, httpLogger } from "@/config/logger.config.js";
 import { env } from "./config/env.config.js";
 import { authRoutes } from "./modules/auth/auth.router.js";
+import { errorMiddleware } from "@/core/middleware/error.middleware.js";
 
 export class AppServer {
   public app: Application;
@@ -39,7 +40,7 @@ export class AppServer {
   }
 
   private initializeErrorHandling() {
-    // this.app.use(errorMiddleware);
+    this.app.use(errorMiddleware);
   }
 
   public start(port: string | number) {

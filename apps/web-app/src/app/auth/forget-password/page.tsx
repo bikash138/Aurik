@@ -78,26 +78,20 @@ export default function ForgotPassword() {
 
         <CardContent className="px-10 pb-8">
           {submittedEmail ? (
-            <div className="flex flex-col gap-4 text-center py-2">
-              <p className="font-(family-name:--font-body) text-sm text-(--color-text-body) dark:text-foreground/60">
-                A reset code was sent to{" "}
-                <span className="text-(--color-text-heading) font-medium">
+            <div className="flex flex-col gap-6 text-center py-4">
+              <p className="font-(family-name:--font-body) text-base text-(--color-text-body) dark:text-foreground/60 leading-relaxed">
+                A reset link has been sent to{" "}
+                <strong className="text-(--color-text-heading) font-semibold">
                   {submittedEmail}
-                </span>
-                . Check your inbox and enter the code to reset your password.
+                </strong>
+                . Please check your inbox and click the link to choose a new password.
               </p>
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex justify-center pt-2">
                 <Link
                   href="/auth/signin"
-                  className="text-md text-(--color-lime-dark) hover:opacity-75 font-medium transition-opacity no-underline hover:no-underline"
+                  className="h-10 px-8 rounded-lg border border-(--color-border) hover:bg-border/10 text-(--color-text-body) text-sm font-medium inline-flex items-center transition-colors no-underline hover:no-underline"
                 >
-                  Back to sign in
-                </Link>
-                <Link
-                  href={`/auth/reset-password?email=${encodeURIComponent(submittedEmail)}`}
-                  className="h-10 px-6 rounded-lg bg-primary hover:opacity-90 text-primary-foreground dark:bg-lime-400 dark:text-(--color-brand) text-sm font-medium inline-flex items-center transition-opacity no-underline hover:no-underline"
-                >
-                  Enter code
+                  Return to sign in
                 </Link>
               </div>
             </div>
