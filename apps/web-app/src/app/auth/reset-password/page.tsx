@@ -1,7 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { useState, Suspense } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import Link from "next/link";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -11,50 +13,44 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AuthAPI } from "@/api/auth.api";
 
-type ResetPasswordFormValues = {
-  newPassword: string;
-  confirmPassword: string;
-};
+const ResetPasswordFormSchema = z
+  .object({
+    newPassword: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
-const MOCK_EMAIL = "user@example.com";
-const MOCK_CODE = "123456";
+type ResetPasswordFormValues = z.infer<typeof ResetPasswordFormSchema>;
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
-  const emailFromQuery = searchParams.get("email") || MOCK_EMAIL;
-  const codeFromQuery = searchParams.get("code") || MOCK_CODE;
+  const token = searchParams.get("token");
 
-  const [verifying, setVerifying] = useState(true);
-  const [verified, setVerified] = useState(false);
-  const [reset, setReset] = useState(false);
-
-  useEffect(() => {
-    // Mock verification — always resolves ok with mock data
-    const verify = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setVerified(true);
-      setVerifying(false);
-    };
-    verify();
-  }, []);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors, isSubmitting },
-  } = useForm<ResetPasswordFormValues>();
-
-  const newPassword = watch("newPassword");
+  } = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(ResetPasswordFormSchema),
+  });
 
   const onSubmit = async (data: ResetPasswordFormValues) => {
+    if (!token) {
+      console.error("Missing token in URL");
+      return;
+    }
+
     try {
       await AuthAPI.resetPassword({
-        email: emailFromQuery,
-        code: codeFromQuery,
+        token,
         newPassword: data.newPassword,
       });
-      setReset(true);
+      setIsSuccess(true);
     } catch (error) {
       console.error("Password reset failed", error);
     }
@@ -87,39 +83,20 @@ function ResetPasswordForm() {
         </Link>
 
         <h1 className="text-h1 font-(family-name:--font-display) text-(--color-text-heading) m-0 leading-none">
-          {reset ? "All done!" : "Reset password"}
+          {isSuccess ? "All done!" : "Reset password"}
         </h1>
-        {!reset && (
+        {!isSuccess && (
           <p className="font-(family-name:--font-body) text-sm text-(--color-text-body) dark:text-foreground/60 font-normal">
-            {verifying
-              ? "Verifying your link…"
-              : verified
-                ? "Choose a new password"
-                : "This link is invalid or expired"}
+            {!token
+              ? "This link is invalid or expired"
+              : "Choose a new password"}
           </p>
         )}
       </CardHeader>
 
       <CardContent className="px-10 pb-8">
-        {/* Verifying skeleton */}
-        {verifying && (
-          <div className="flex flex-col gap-5">
-            <div className="flex flex-col gap-1.5">
-              <div className="h-4 w-24 rounded bg-(--color-border) animate-pulse" />
-              <div className="h-12 w-full rounded-lg bg-(--color-border) animate-pulse" />
-            </div>
-            <div className="flex flex-col gap-1.5">
-              <div className="h-4 w-32 rounded bg-(--color-border) animate-pulse" />
-              <div className="h-12 w-full rounded-lg bg-(--color-border) animate-pulse" />
-            </div>
-            <div className="flex justify-end pt-2">
-              <div className="h-10 w-36 rounded-lg bg-(--color-border) animate-pulse" />
-            </div>
-          </div>
-        )}
-
-        {/* Invalid link */}
-        {!verifying && !verified && (
+        {/* Invalid link state */}
+        {!token && (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <p className="font-(family-name:--font-body) text-sm text-(--color-text-body) dark:text-foreground/60">
               Please request a new reset link.
@@ -133,8 +110,8 @@ function ResetPasswordForm() {
           </div>
         )}
 
-        {/* Success */}
-        {!verifying && verified && reset && (
+        {/* Success state */}
+        {isSuccess && (
           <div className="flex flex-col items-center gap-4 py-4 text-center">
             <p className="font-(family-name:--font-body) text-sm text-(--color-text-body) dark:text-foreground/60">
               You can now sign in with your new password.
@@ -149,7 +126,7 @@ function ResetPasswordForm() {
         )}
 
         {/* Password form */}
-        {!verifying && verified && !reset && (
+        {!isSuccess && token && (
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="flex flex-col gap-5"
@@ -166,10 +143,7 @@ function ResetPasswordForm() {
                 type="password"
                 placeholder="New password"
                 className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                {...register("newPassword", {
-                  required: "Enter a new password",
-                  minLength: { value: 8, message: "Use 8 characters or more" },
-                })}
+                {...register("newPassword")}
               />
               {errors.newPassword && (
                 <p className="text-sm text-destructive">
@@ -190,11 +164,7 @@ function ResetPasswordForm() {
                 type="password"
                 placeholder="Confirm password"
                 className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                {...register("confirmPassword", {
-                  required: "Confirm your new password",
-                  validate: (value) =>
-                    value === newPassword || "Passwords do not match",
-                })}
+                {...register("confirmPassword")}
               />
               {errors.confirmPassword && (
                 <p className="text-sm text-destructive">

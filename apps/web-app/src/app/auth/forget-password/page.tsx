@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  ForgotPasswordBodySchema,
+  type ForgotPasswordRequest,
+} from "@aurik/zod/auth";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -10,10 +15,6 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { AuthAPI } from "@/api/auth.api";
 
-type ForgotPasswordFormValues = {
-  email: string;
-};
-
 export default function ForgotPassword() {
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
 
@@ -21,9 +22,11 @@ export default function ForgotPassword() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<ForgotPasswordFormValues>();
+  } = useForm<ForgotPasswordRequest>({
+    resolver: zodResolver(ForgotPasswordBodySchema),
+  });
 
-  const onSubmit = async (data: ForgotPasswordFormValues) => {
+  const onSubmit = async (data: ForgotPasswordRequest) => {
     try {
       await AuthAPI.forgotPassword(data);
       setSubmittedEmail(data.email);
@@ -108,16 +111,10 @@ export default function ForgotPassword() {
                 </Label>
                 <Input
                   id="email"
-                  type="email"
+                  type="text"
                   placeholder="Email"
                   className="h-12 px-4 rounded-lg border border-(--color-border) bg-(--color-input) text-base text-(--color-text-heading) placeholder:text-(--color-text-muted) focus-visible:ring-(--color-input-focus)/40"
-                  {...register("email", {
-                    required: "Enter your email address",
-                    pattern: {
-                      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                      message: "Enter a valid email address",
-                    },
-                  })}
+                  {...register("email")}
                 />
                 {errors.email && (
                   <p className="text-sm text-destructive">

@@ -47,6 +47,17 @@ const NameSchema = (field: string) =>
     )
     .trim();
 
+const UserSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  firstName: z.string(),
+  lastName: z.string(),
+  isEmailVerified: z.boolean(),
+});
+
+/**
+ * REQUEST SCHEMAS (Input Validation)
+ */
 export const SignupBodySchema = z
   .object({
     email: TrustedEmailSchema,
@@ -83,8 +94,33 @@ export const ResetPasswordBodySchema = z
   })
   .strict();
 
+/**
+ * RESPONSE SCHEMAS (API Contracts)
+ */
+export const GenericResponseSchema = z.object({
+  message: z.string(),
+});
+
+export const AuthResponseSchema = GenericResponseSchema.extend({
+  data: UserSchema,
+});
+
+export const ApiErrorResponseSchema = z.object({
+  error: z.object({
+    code: z.string(),
+    message: z.string(),
+  }),
+});
+
+/**
+ * INFERRED TYPES
+ */
 export type SignupRequest = z.infer<typeof SignupBodySchema>;
 export type SigninRequest = z.infer<typeof SigninBodySchema>;
 export type VerifyEmailRequest = z.infer<typeof VerifyEmailBodySchema>;
 export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordBodySchema>;
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordBodySchema>;
+
+export type AuthResponse = z.infer<typeof AuthResponseSchema>;
+export type GenericResponse = z.infer<typeof GenericResponseSchema>;
+export type ApiErrorResponse = z.infer<typeof ApiErrorResponseSchema>;

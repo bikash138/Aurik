@@ -6,31 +6,48 @@ import {
   VerifyEmailRequest,
   ForgotPasswordRequest,
   ResetPasswordRequest,
+  AuthResponse,
+  GenericResponse,
 } from "@aurik/zod/auth";
 
 export class AuthAPI {
-  public static async signin(data: SigninRequest) {
-    const response = await apiClient.post("/auth/signin", data);
+  public static async signin(data: SigninRequest): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>("/auth/signin", data);
     return response.data;
   }
 
-  public static async signup(data: SignupRequest) {
-    const response = await apiClient.post("/auth/signup", data);
+  public static async signup(data: SignupRequest): Promise<AuthResponse> {
+    const response = await apiClient.post<AuthResponse>("/auth/signup", data);
     return response.data;
   }
 
-  public static async verifyEmail(data: VerifyEmailRequest) {
-    const response = await apiClient.post("/auth/verify-email", data);
+  public static async verifyEmail(
+    data: VerifyEmailRequest,
+  ): Promise<GenericResponse> {
+    const response = await apiClient.post<GenericResponse>(
+      "/auth/verify-email",
+      data,
+    );
     return response.data;
   }
 
-  public static async forgotPassword(data: ForgotPasswordRequest) {
-    const response = await apiClient.post("/auth/forgot-password", data);
+  public static async forgotPassword(
+    data: ForgotPasswordRequest,
+  ): Promise<GenericResponse> {
+    const response = await apiClient.post<GenericResponse>(
+      "/auth/forgot-password",
+      data,
+    );
     return response.data;
   }
 
-  public static async resetPassword(data: ResetPasswordRequest) {
-    const response = await apiClient.post("/auth/reset-password", data);
+  public static async resetPassword(
+    data: ResetPasswordRequest,
+  ): Promise<GenericResponse> {
+    const response = await apiClient.post<GenericResponse>(
+      "/auth/reset-password",
+      data,
+    );
     return response.data;
   }
 

@@ -6,22 +6,25 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
-type VerifyState = "verifying" | "success" | "error";
+import { AuthAPI } from "@/api/auth.api";
 
-// Mock token — replace with real query param when API is ready
-const MOCK_TOKEN = "mock-verification-token";
+type VerifyState = "verifying" | "success" | "error";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
-  const token = searchParams.get("token") || MOCK_TOKEN;
+  const token = searchParams.get("token");
 
   const [state, setState] = useState<VerifyState>("verifying");
 
   useEffect(() => {
+    if (!token) {
+      setState("error");
+      return;
+    }
+
     const verify = async () => {
       try {
-        // Replace with: await AuthAPI.verifyEmail({ token });
-        await new Promise((resolve) => setTimeout(resolve, 1200));
+        await AuthAPI.verifyEmail({ token });
         setState("success");
       } catch (error) {
         console.error("Email verification failed", error);
