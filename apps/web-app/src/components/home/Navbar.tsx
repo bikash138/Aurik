@@ -57,7 +57,7 @@ export function Navbar() {
           {/* RIGHT SIDE */}
           <div className="flex items-center gap-1">
             <Link
-              href="/dashboard"
+              href="/developer"
               className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-95 transition-all active:scale-95 no-underline text-sm"
             >
               Get Started

@@ -9,13 +9,14 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AuthAPI } from "@/api/auth.api";
 import { useState } from "react";
 
 export default function Signin() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -30,8 +31,7 @@ export default function Signin() {
     try {
       const result = await AuthAPI.signin(data);
       toast.success(result.message);
-      console.log("Logged in successfully!", result);
-      router.push("/profile");
+      router.push(searchParams.get("callbackUrl") || "/profile");
     } catch (error: any) {
       const message =
         error.response?.data?.error?.message || "Failed to sign in";
