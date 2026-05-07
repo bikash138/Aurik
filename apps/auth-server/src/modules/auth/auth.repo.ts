@@ -1,5 +1,5 @@
 import { EXPIRATION_TIMES } from "@/utils/constants.js";
-import { prisma } from "@aurik/database";
+import { prisma, VerificationTokenType } from "@aurik/database";
 
 export class AuthRepo {
   public static async getUserByEmail(email: string) {
@@ -60,6 +60,7 @@ export class AuthRepo {
   public static async getVerificationTokenWithUser(token: string) {
     return await prisma.verificationToken.findUnique({
       where: { token },
+      include: { user: true },
     });
   }
 
@@ -72,6 +73,52 @@ export class AuthRepo {
       prisma.user.update({
         where: { id: userId },
         data: { isEmailVerified: true },
+      }),
+    ]);
+  }
+
+  public static async getValidPasswordResetToken(userId: string) {
+    return await prisma.verificationToken.findFirst({
+      where: {
+        userId,
+        type: VerificationTokenType.PASSWORD_RESET,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+    });
+  }
+
+  public static async logPasswordResetRequest(userId: string) {
+    return await prisma.auditLog.create({
+      data: {
+        action: "user.password_reset.requested",
+        userId,
+      },
+    });
+  }
+
+  public static async resetPasswordTransaction(
+    userId: string,
+    tokenId: string,
+    passwordHash: string,
+  ): Promise<void> {
+    await prisma.$transaction([
+      prisma.verificationToken.update({
+        where: { id: tokenId },
+        data: { usedAt: new Date() },
+      }),
+      prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash },
+      }),
+      prisma.session.deleteMany({
+        where: { userId },
+      }),
+      prisma.auditLog.create({
+        data: {
+          action: "user.password_reset.success",
+          userId,
+        },
       }),
     ]);
   }

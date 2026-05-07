@@ -1,5 +1,7 @@
 import type { Request, Response } from "express";
 import {
+  ForgotPasswordBodySchema,
+  ResetPasswordBodySchema,
   SigninBodySchema,
   SignupBodySchema,
   VerifyEmailBodySchema,
@@ -43,6 +45,24 @@ export class AuthHandler {
       await AuthService.verifyEmail(body);
 
       res.status(200).json({ message: "Email verfied sucessfully" });
+    },
+  );
+
+  public static forgotPassowrd = asyncHandler(
+    async (req: Request, res: Response) => {
+      const body = ForgotPasswordBodySchema.parse(req.body);
+      const result = await AuthService.forgotPassword(body);
+
+      res.status(200).json({ message: result.message });
+    },
+  );
+
+  public static resetPassowrd = asyncHandler(
+    async (req: Request, res: Response) => {
+      const body = ResetPasswordBodySchema.parse(req.body);
+      const result = await AuthService.resetPassword(body);
+
+      res.status(200).json({ message: result.message });
     },
   );
 }

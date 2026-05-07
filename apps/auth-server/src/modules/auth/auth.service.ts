@@ -4,6 +4,8 @@ import { MailService } from "../mail/mail.service.js";
 import { AuthRepo } from "./auth.repo.js";
 import { ApiError } from "@/core/errors/api.error.js";
 import type {
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
   SigninRequest,
   SignupRequest,
   VerifyEmailRequest,
@@ -112,5 +114,48 @@ export class AuthService {
     }
 
     await AuthRepo.markEmailAsVerified(record.userId, record.id);
+  }
+
+  public static async forgotPassword(data: ForgotPasswordRequest) {
+    const user = await AuthRepo.getUserByEmail(data.email);
+
+    if (!user || !user.isActive) {
+      return {
+        message: "If email exists you will receive a reset link shortly",
+      };
+    }
+
+    const existingToken = await AuthRepo.getValidPasswordResetToken(user.id);
+
+    if (existingToken) {
+      return {
+        message: "If email exists you will receive a reset link shortly",
+      };
+    }
+
+    await MailService.sendPasswordResetEmail(user.id, user.email);
+    await AuthRepo.logPasswordResetRequest(user.id);
+
+    return {
+      message: "If email exists you will receive a reset link shortly",
+    };
+  }
+
+  public static async resetPassword(data: ResetPasswordRequest) {
+    const record = await AuthRepo.getVerificationTokenWithUser(data.token);
+
+    if (!record) throw ApiError.notFound("Invalid token");
+    if (record.usedAt) throw ApiError.conflict("Token already used");
+    if (record.expiresAt < new Date())
+      throw ApiError.validationError("Token expired");
+    if (record.type !== VerificationTokenType.PASSWORD_RESET)
+      throw ApiError.validationError("Invalid token");
+    if (!record.user.isActive) throw ApiError.forbidden("ACCOUNT_SUSPENDED");
+
+    const hash = this.hashPassword(data.newPassword);
+
+    await AuthRepo.resetPasswordTransaction(record.userId, record.id, hash);
+
+    return { message: "Password reset successfully" };
   }
 }

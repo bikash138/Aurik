@@ -78,7 +78,6 @@ export const ForgotPasswordBodySchema = z
 
 export const ResetPasswordBodySchema = z
   .object({
-    email: TrustedEmailSchema,
     token: HexTokenSchema,
     newPassword: PasswordSchema,
   })
