@@ -82,7 +82,7 @@ export default function ForgotPassword() {
               <div className="flex items-center justify-between pt-2">
                 <Link
                   href="/auth/signin"
-                  className="text-sm text-(--color-lime-dark) hover:opacity-75 font-medium transition-opacity no-underline hover:no-underline"
+                  className="text-md text-(--color-lime-dark) hover:opacity-75 font-medium transition-opacity no-underline hover:no-underline"
                 >
                   Back to sign in
                 </Link>
@@ -129,7 +129,7 @@ export default function ForgotPassword() {
               <div className="flex items-center justify-between pt-2">
                 <Link
                   href="/auth/signin"
-                  className="text-sm text-(--color-lime-dark) hover:opacity-75 font-medium transition-opacity no-underline hover:no-underline"
+                  className="text-md text-(--color-lime-dark) hover:opacity-75 font-medium transition-opacity no-underline hover:no-underline"
                 >
                   Back to sign in
                 </Link>
