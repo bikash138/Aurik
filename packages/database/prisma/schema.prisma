@@ -1,0 +1,247 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ClientType {
+  WEB
+  NATIVE
+  SERVICE
+}
+
+enum VerificationTokenType {
+  EMAIL_VERIFICATION
+  PASSWORD_RESET
+}
+
+model User {
+  id           String @id @default(uuid()) @db.Uuid
+  email        String @unique @db.VarChar(322)
+  passwordHash String @map("password_hash") @db.VarChar(66)
+  salt         String @db.Text
+
+  firstName       String? @map("first_name") @db.VarChar(25)
+  lastName        String? @map("last_name") @db.VarChar(25)
+  profileImageUrl String? @map("profile_image_url") @db.Text
+
+  isEmailVerified Boolean @default(false) @map("is_email_verified")
+  isActive        Boolean @default(true) @map("is_active")
+
+  lastLoginAt DateTime? @map("last_login_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  clients            Client[]
+  sessions           Session[]
+  authCodes          AuthorizationCode[]
+  accessTokens       AccessToken[]
+  refreshTokens      RefreshToken[]
+  verificationTokens VerificationToken[]
+  auditLogs          AuditLog[]
+  consents           Consent[]
+
+  @@map("users")
+}
+
+model Client {
+  id      String @id @default(uuid())
+  appName String @map("app_name") @db.VarChar(50)
+
+  clientId         String  @unique @map("client_id") @db.Text
+  clientSecretHash String? @map("client_secret_hash") @db.Text
+
+  redirectUris   String[] @map("redirect_uris")
+  postLogoutUris String[] @map("post_logout_uris")
+  grantTypes     String[] @map("grant_types")
+  scopes         String[]
+
+  pkceRequired Boolean    @default(true) @map("pkce_required")
+  clientType   ClientType @default(WEB) @map("client_type")
+  isActive     Boolean    @default(true) @map("is_active")
+
+  accessTokenTTL  Int @default(3600) @map("access_token_ttl")
+  refreshTokenTTL Int @default(604800) @map("refresh_token_ttl")
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  //Branding
+  brandColorPrimary   String? @map("brand_color_primary") @db.VarChar(7)
+  brandColorSecondary String? @map("brand_color_secondary") @db.VarChar(7)
+  logoUrl             String? @map("logo_url") @db.Text
+  clientUri           String? @map("client_uri") @db.Text
+  policyUri           String? @map("policy_uri") @db.Text
+  tosUri              String? @map("tos_uri") @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  authCodes     AuthorizationCode[]
+  accessTokens  AccessToken[]
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  consents      Consent[]
+
+  @@map("clients")
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  token     String   @unique @db.Text
+  expiresAt DateTime @map("expires_at")
+
+  userAgent String? @map("user_agent") @db.Text
+  ipAddress String? @map("ip_address") @db.VarChar(45)
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("sessions")
+}
+
+model ConsentSession {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  userId    String   @map("user_id") @db.Uuid
+  params    Json
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("consent_sessions")
+}
+
+model Consent {
+  id String @id @default(uuid())
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  clientId String @map("client_id")
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  scopes String[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, clientId])
+  @@map("consents")
+}
+
+model AuthorizationCode {
+  id   String @id @default(uuid())
+  code String @unique @db.Text
+
+  used      Boolean  @default(false)
+  expiresAt DateTime @map("expires_at") //Short lived
+
+  codeChallenge       String? @map("code_challenge") @db.Text
+  codeChallengeMethod String? @map("code_challenge_method") @db.VarChar(10)
+
+  scopes String[]
+
+  redirectUri String @map("redirect_uri") @db.Text
+
+  userId   String @map("user_id") @db.Uuid
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId String @map("client_id")
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("authorization_codes")
+}
+
+model AccessToken {
+  id    String @id @default(uuid())
+  token String @unique @db.Text
+
+  expiresAt DateTime @map("expires_at")
+
+  revoked Boolean @default(false)
+
+  scopes String[]
+
+  userId   String? @map("user_id") @db.Uuid
+  user     User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId String  @map("client_id")
+  client   Client  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("access_tokens")
+}
+
+model RefreshToken {
+  id    String @id @default(uuid())
+  token String @unique @db.Text
+
+  expiresAt DateTime @map("expires_at")
+  revoked   Boolean  @default(false)
+
+  previousTokenId String? @map("previous_token_id")
+
+  userId   String @map("user_id") @db.Uuid
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clientId String @map("client_id")
+  client   Client @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}
+
+model SigningKey {
+  id        String @id @default(uuid())
+  kid       String @unique @map("key_id")
+  algorithm String @default("RS256")
+
+  privateKey String @map("private_key") @db.Text
+  publicKey  String @map("public_key") @db.Text
+
+  isActive Boolean @default(true) @map("is_active")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  expiresAt DateTime @map("expires_at")
+
+  @@map("signing_keys")
+}
+
+model VerificationToken {
+  id        String                @id @default(uuid())
+  token     String                @unique @db.Text
+  type      VerificationTokenType
+  expiresAt DateTime              @map("expires_at")
+  usedAt    DateTime?             @map("used_at")
+
+  userId String @map("user_id") @db.Uuid
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("verification_tokens")
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  action String @db.VarChar(50)
+
+  metadata Json?
+
+  userId   String? @map("user_id") @db.Uuid
+  user     User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  clientId String? @map("client_id")
+  client   Client? @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  ipAddress String?  @map("ip_address") @db.VarChar(45)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
