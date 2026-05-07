@@ -56,4 +56,23 @@ export class AuthRepo {
       }),
     ]);
   }
+
+  public static async getVerificationTokenWithUser(token: string) {
+    return await prisma.verificationToken.findUnique({
+      where: { token },
+    });
+  }
+
+  public static async markEmailAsVerified(userId: string, tokenId: string) {
+    return await prisma.$transaction([
+      prisma.verificationToken.update({
+        where: { id: tokenId },
+        data: { usedAt: new Date() },
+      }),
+      prisma.user.update({
+        where: { id: userId },
+        data: { isEmailVerified: true },
+      }),
+    ]);
+  }
 }

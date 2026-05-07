@@ -66,7 +66,6 @@ export const SigninBodySchema = z
 
 export const VerifyEmailBodySchema = z
   .object({
-    email: TrustedEmailSchema,
     token: HexTokenSchema,
   })
   .strict();

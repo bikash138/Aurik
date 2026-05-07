@@ -3,7 +3,12 @@ import bcrypt from "bcryptjs";
 import { MailService } from "../mail/mail.service.js";
 import { AuthRepo } from "./auth.repo.js";
 import { ApiError } from "@/core/errors/api.error.js";
-import type { SigninRequest, SignupRequest } from "./auth.schema.js";
+import type {
+  SigninRequest,
+  SignupRequest,
+  VerifyEmailRequest,
+} from "./auth.schema.js";
+import { VerificationTokenType } from "@aurik/database";
 
 export class AuthService {
   private static hashPassword(password: string) {
@@ -85,5 +90,27 @@ export class AuthService {
         isEmailVerified: user.isEmailVerified,
       },
     };
+  }
+
+  public static async verifyEmail(data: VerifyEmailRequest) {
+    const record = await AuthRepo.getVerificationTokenWithUser(data.token);
+
+    if (!record) {
+      throw ApiError.notFound("Invalid or expired verification token");
+    }
+
+    if (record.type !== VerificationTokenType.EMAIL_VERIFICATION) {
+      throw ApiError.validationError("Invalid token type");
+    }
+
+    if (record.usedAt) {
+      throw ApiError.conflict("Code has already been used");
+    }
+
+    if (record.expiresAt < new Date()) {
+      throw ApiError.validationError("Code has expired");
+    }
+
+    await AuthRepo.markEmailAsVerified(record.userId, record.id);
   }
 }

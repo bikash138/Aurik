@@ -1,5 +1,9 @@
 import type { Request, Response } from "express";
-import { SigninBodySchema, SignupBodySchema } from "./auth.schema.js";
+import {
+  SigninBodySchema,
+  SignupBodySchema,
+  VerifyEmailBodySchema,
+} from "./auth.schema.js";
 import { AuthService } from "./auth.service.js";
 import { logger } from "@/config/logger.config.js";
 import { env } from "@/config/env.config.js";
@@ -32,4 +36,13 @@ export class AuthHandler {
       .status(200)
       .json({ message: "Signed in successfully", data: result.user });
   });
+
+  public static verifyEmail = asyncHandler(
+    async (req: Request, res: Response) => {
+      const body = VerifyEmailBodySchema.parse(req.body);
+      await AuthService.verifyEmail(body);
+
+      res.status(200).json({ message: "Email verfied sucessfully" });
+    },
+  );
 }
