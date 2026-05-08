@@ -30,7 +30,12 @@ export async function GET(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Missing or invalid session" },
+        {
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Missing or invalid session",
+          },
+        },
         { status: 401 },
       );
     }
@@ -39,7 +44,12 @@ export async function GET(req: NextRequest) {
   } catch (error) {
     console.error("[PROFILE_GET]", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      {
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred",
+        },
+      },
       { status: 500 },
     );
   }
@@ -51,7 +61,12 @@ export async function PUT(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Missing or invalid session" },
+        {
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Missing or invalid session",
+          },
+        },
         { status: 401 },
       );
     }
@@ -61,7 +76,13 @@ export async function PUT(req: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Invalid request body", details: parsed.error.issues },
+        {
+          error: {
+            code: "VALIDATION_ERROR",
+            message: "Invalid request body",
+            details: parsed.error.issues,
+          },
+        },
         { status: 400 },
       );
     }
@@ -91,7 +112,12 @@ export async function PUT(req: NextRequest) {
   } catch (error) {
     console.error("[PROFILE_PUT]", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      {
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred",
+        },
+      },
       { status: 500 },
     );
   }
@@ -103,7 +129,12 @@ export async function DELETE(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: "Missing or invalid session" },
+        {
+          error: {
+            code: "UNAUTHORIZED",
+            message: "Missing or invalid session",
+          },
+        },
         { status: 401 },
       );
     }
@@ -120,7 +151,12 @@ export async function DELETE(req: NextRequest) {
   } catch (error) {
     console.error("[PROFILE_DELETE]", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      {
+        error: {
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred",
+        },
+      },
       { status: 500 },
     );
   }

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { localClient } from "./api";
 
 export interface Profile {
@@ -36,16 +37,27 @@ export const ProfileAPI = {
       .put<{ data: Profile }>("/profile", data)
       .then((r) => r.data.data),
 
-  uploadProfileImage: (file: File) => {
-    const formData = new FormData();
-    formData.append("image", file);
-    return localClient
-      .post<{
-        data: { profileImageUrl: string };
-      }>("/profile/image", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      })
-      .then((r) => r.data.data);
+  getUploadUrl: () =>
+    localClient
+      .get<{ data: { uploadUrl: string; publicUrl: string } }>(
+        "/profile/upload-url",
+      )
+      .then((r) => r.data.data),
+
+  uploadToS3: async (url: string, blob: Blob) => {
+    const response = await fetch(url, {
+      method: "PUT",
+      body: blob,
+      headers: {
+        "Content-Type": "image/webp",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`S3 Upload failed: ${response.statusText}`);
+    }
+
+    return response;
   },
 
   deleteProfileImage: () =>
