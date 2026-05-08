@@ -16,11 +16,12 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Camera, CalendarIcon, Loader2 } from "lucide-react";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { toast } from "sonner";
 import { useUpdateProfile } from "@/app/hooks/use-profile";
 import { Profile } from "@/api/profile.api";
-import { Gender } from "@aurik/database";
+import { Button } from "@/components/ui/button";
+import { Gender } from "@aurik/database/enums";
 import {
   updateProfileSchema,
   UpdateProfileFormValues,
@@ -57,7 +58,9 @@ export function EditProfileModal({
       lastName: user.lastName,
       profileImageUrl: user.profileImageUrl,
       gender: user.gender ?? null,
-      dateOfBirth: user.dateOfBirth ?? null,
+      dateOfBirth: user.dateOfBirth
+        ? format(new Date(user.dateOfBirth), "yyyy-MM-dd")
+        : null,
       country: user.country ?? null,
     },
   });
@@ -69,7 +72,9 @@ export function EditProfileModal({
         lastName: user.lastName,
         profileImageUrl: user.profileImageUrl,
         gender: user.gender ?? null,
-        dateOfBirth: user.dateOfBirth ?? null,
+        dateOfBirth: user.dateOfBirth
+          ? format(new Date(user.dateOfBirth), "yyyy-MM-dd")
+          : null,
         country: user.country ?? null,
       });
     }
@@ -173,7 +178,7 @@ export function EditProfileModal({
                   name="dateOfBirth"
                   render={({ field }) => {
                     const dateValue = field.value
-                      ? parse(field.value, "yyyy-MM-dd", new Date())
+                      ? new Date(field.value)
                       : undefined;
                     return (
                       <Popover>
@@ -237,7 +242,7 @@ export function EditProfileModal({
                       disabled={isPending}
                     >
                       <option value="">Select</option>
-                      {Object.values(Gender).map((g) => (
+                      {(Object.values(Gender) as string[]).map((g: string) => (
                         <option key={g} value={g}>
                           {toGenderLabel(g)}
                         </option>
@@ -270,22 +275,21 @@ export function EditProfileModal({
 
             {/* Actions */}
             <div className="flex gap-2 justify-end mt-1">
-              <button
+              <Button
                 type="button"
                 onClick={() => onOpenChange(false)}
                 disabled={isPending}
                 className="btn-ghost px-4 py-2 rounded-lg text-sm disabled:opacity-50"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
                 type="submit"
-                disabled={isPending}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium bg-(--color-brand) text-(--color-lime) hover:opacity-90 transition-opacity disabled:opacity-50 disabled:pointer-events-none"
+                loading={isPending}
+                className="px-4 py-2 rounded-lg text-sm font-medium bg-(--color-brand) text-(--color-lime) hover:opacity-90 transition-opacity"
               >
-                {isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 Save changes
-              </button>
+              </Button>
             </div>
           </div>
         </form>

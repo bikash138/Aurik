@@ -15,7 +15,7 @@ export class AuthRepo {
     lastName: string,
     profileImageUrl: string,
   ) {
-    const a = await prisma.user.create({
+    return await prisma.user.create({
       data: {
         email,
         passwordHash,

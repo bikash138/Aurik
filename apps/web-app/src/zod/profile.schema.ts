@@ -1,4 +1,4 @@
-import { Gender } from "@aurik/database";
+import { Gender } from "@aurik/database/enums";
 import { z } from "zod";
 import { NameSchema } from "@aurik/zod/auth";
 

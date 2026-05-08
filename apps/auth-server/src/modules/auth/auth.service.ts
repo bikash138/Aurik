@@ -32,7 +32,7 @@ export class AuthService {
 
     const passwordHash = this.hashPassword(data.password);
 
-    const profileImageUrl = `https://api.dicebear.com/9.x/initials/svg?seed=Felix`;
+    const profileImageUrl = `https://api.dicebear.com/9.x/personas/svg?seed=${encodeURIComponent(data.email)}`;
 
     const newUser = await AuthRepo.createUser(
       data.email,
