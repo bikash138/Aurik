@@ -7,7 +7,6 @@ import {
   VerifyEmailBodySchema,
 } from "@aurik/zod/auth";
 import { AuthService } from "./auth.service.js";
-import { logger } from "@/config/logger.config.js";
 import { env } from "@/config/env.config.js";
 import { EXPIRATION_TIMES } from "@/utils/constants.js";
 import { asyncHandler } from "@/utils/async-handler.js";

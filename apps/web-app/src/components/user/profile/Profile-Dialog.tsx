@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +12,7 @@ import {
 import { Code2, LogOut, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AuthAPI } from "@/api/auth.api";
-import { useProfile } from "@/app/hooks/use-profile";
+import { useProfile } from "@/hooks/use-profile";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -46,8 +47,14 @@ export function ProfileDialog() {
         {isLoading ? (
           <Skeleton className="bg-(--color-border) w-9 h-9 rounded-full" />
         ) : (
-          <button className="w-9 h-9 rounded-full bg-(--color-brand) flex items-center justify-center text-(--color-lime) font-semibold text-sm hover:opacity-90 transition-opacity outline-none">
-            {fullName.charAt(0).toUpperCase()}
+          <button className="relative w-9 h-9 rounded-full overflow-hidden hover:opacity-90 transition-opacity outline-none shrink-0">
+            {user?.profileImageUrl ? (
+              <Image src={user.profileImageUrl} alt={fullName} fill className="object-cover" />
+            ) : (
+              <span className="w-full h-full bg-(--color-brand) flex items-center justify-center text-(--color-lime) font-semibold text-sm">
+                {fullName.charAt(0).toUpperCase()}
+              </span>
+            )}
           </button>
         )}
       </DropdownMenuTrigger>
@@ -59,8 +66,14 @@ export function ProfileDialog() {
           {isLoading ? (
             <Skeleton className="bg-(--color-border) w-12 h-12 rounded-full shrink-0" />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-(--color-brand) flex items-center justify-center text-(--color-lime) font-bold text-xl shrink-0">
-              {fullName.charAt(0).toUpperCase()}
+            <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0">
+              {user?.profileImageUrl ? (
+                <Image src={user.profileImageUrl} alt={fullName} fill className="object-cover" />
+              ) : (
+                <span className="w-full h-full bg-(--color-brand) flex items-center justify-center text-(--color-lime) font-bold text-xl">
+                  {fullName.charAt(0).toUpperCase()}
+                </span>
+              )}
             </div>
           )}
           <div className="min-w-0 flex flex-col">
@@ -71,8 +84,12 @@ export function ProfileDialog() {
               </>
             ) : (
               <>
-                <p className="font-medium text-heading text-sm truncate">{fullName}</p>
-                <p className="text-xs text-body-color mt-0.5 truncate">{user?.email}</p>
+                <p className="font-medium text-heading text-sm truncate">
+                  {fullName}
+                </p>
+                <p className="text-xs text-body-color mt-0.5 truncate">
+                  {user?.email}
+                </p>
               </>
             )}
           </div>

@@ -21,7 +21,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Camera, CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useUpdateProfile } from "@/app/hooks/use-profile";
+import { useUpdateProfile } from "@/hooks/use-profile";
 import { Profile, ProfileAPI } from "@/api/profile.api";
 import { Button } from "@/components/ui/button";
 import { Gender } from "@aurik/database/enums";

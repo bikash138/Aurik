@@ -20,8 +20,11 @@ export class AuthService {
     return hash;
   }
 
-  private static verifyPassword(password: string, hash: string): boolean {
-    return bcrypt.compareSync(password, hash);
+  private static async verifyPassword(
+    password: string,
+    hash: string,
+  ): Promise<boolean> {
+    return await bcrypt.compare(password, hash);
   }
 
   public static async signup(data: SignupRequest) {
@@ -63,7 +66,7 @@ export class AuthService {
       throw ApiError.invalidCredentials();
     }
 
-    const isValid = this.verifyPassword(data.password, user.passwordHash);
+    const isValid = await this.verifyPassword(data.password, user.passwordHash);
 
     if (!isValid) {
       throw ApiError.invalidCredentials();

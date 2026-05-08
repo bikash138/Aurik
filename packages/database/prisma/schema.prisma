@@ -81,10 +81,8 @@ model Client {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   //Branding
-  brandColorPrimary   String? @map("brand_color_primary") @db.VarChar(7)
-  brandColorSecondary String? @map("brand_color_secondary") @db.VarChar(7)
-  logoUrl             String? @map("logo_url") @db.Text
-  clientUri           String? @map("client_uri") @db.Text
+  logoUrl             String  @map("logo_url") @db.Text
+  clientUri           String  @map("client_uri") @db.Text
   policyUri           String? @map("policy_uri") @db.Text
   tosUri              String? @map("tos_uri") @db.Text
 

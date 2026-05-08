@@ -10,7 +10,7 @@ import {
   Mail,
   Pencil,
 } from "lucide-react";
-import { useProfile } from "@/app/hooks/use-profile";
+import { useProfile } from "@/hooks/use-profile";
 import { ProfilePageSkeleton } from "@/components/skeletons/Profile-Page-Skeleton";
 import { EditProfileModal } from "@/components/modals/Edit-Profile.modal";
 
