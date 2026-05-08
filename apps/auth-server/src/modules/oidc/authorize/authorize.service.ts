@@ -2,6 +2,7 @@ import crypto from "crypto";
 import type { AuthorizeInput } from "./authorize.schema.js";
 import { ApiError } from "@/core/errors/api.error.js";
 import { AuthorizeRepo } from "./authorize.repo.js";
+import { EXPIRATION_TIMES } from "@/utils/constants.js";
 
 export class AuthorizeService {
   public static async validateAuthorizeRequest(query: AuthorizeInput) {
@@ -39,7 +40,7 @@ export class AuthorizeService {
     query: AuthorizeInput,
   ) {
     const code = crypto.randomBytes(24).toString("hex");
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + EXPIRATION_TIMES.AUTHORIZATION_CODE);
 
     await AuthorizeRepo.createAuthorizationCode({
       code,

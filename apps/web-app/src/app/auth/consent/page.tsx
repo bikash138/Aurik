@@ -6,13 +6,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// import { apiClient } from "@/api/api"; // restore when backend is ready
+import { apiClient } from "@/api/api";
+import { toast } from "sonner";
 
 type ConsentSession = {
   clientName: string;
+  logoUrl?: string;
+  clientUri?: string;
+  policyUri?: string;
+  tosUri?: string;
   scopes: string[];
-  termsUrl?: string;
-  privacyUrl?: string;
   params: {
     client_id: string;
     redirect_uri: string;
@@ -71,46 +74,67 @@ function ScopeIcon() {
   );
 }
 
-const MOCK_SESSION: ConsentSession = {
-  clientName: "Acme Dashboard",
-  scopes: ["openid", "profile", "email", "offline_access"],
-  termsUrl: "https://acme.example.com/terms",
-  privacyUrl: "https://acme.example.com/privacy",
-  params: {
-    client_id: "acme-dashboard",
-    redirect_uri: "https://acme.example.com/callback",
-    scope: "openid profile email offline_access",
-    state: "mock-state-xyz",
-    response_type: "code",
-  },
-};
+// Remove MOCK_SESSION
 
 export default function ConsentPage() {
   const searchParams = useSearchParams();
   const key = searchParams.get("key");
 
   const [session, setSession] = useState<ConsentSession | null>(null);
-  const [error] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
 
   useEffect(() => {
-    // Mock — remove and restore apiClient call when backend is ready
     const load = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      setSession(MOCK_SESSION);
-      setLoading(false);
+      if (!key) {
+        setError("Missing consent key");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await apiClient.get(
+          `/oidc/consent-session?key=${key}`,
+        );
+        setSession(response.data);
+      } catch (err: any) {
+        setError(
+          err.response?.data?.message || "Failed to load consent session",
+        );
+      } finally {
+        setLoading(false);
+      }
     };
     load();
   }, [key]);
 
   async function handleAction(action: "approved" | "denied") {
-    if (!session) return;
+    if (!session || !key) return;
+
+    // Check for missing legal links before approving
+    if (action === "approved" && (!session.policyUri || !session.tosUri)) {
+      if (!showWarning) {
+        setShowWarning(true);
+        return;
+      }
+    }
+
     setSubmitting(true);
-    // Mock — replace with real apiClient.post call when backend is ready
-    await new Promise((resolve) => setTimeout(resolve, 800));
-    console.log("Consent action:", action);
-    setSubmitting(false);
+    try {
+      const response = await apiClient.post("/oidc/consent", {
+        key,
+        action,
+      });
+
+      if (response.data.redirectUrl) {
+        window.location.href = response.data.redirectUrl;
+      }
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to submit consent");
+      setSubmitting(false);
+    }
   }
 
   if (loading) {
@@ -191,10 +215,18 @@ export default function ConsentPage() {
 
             <div className="flex flex-col gap-3">
               {/* App avatar */}
-              <div className="w-12 h-12 rounded-2xl bg-(--color-brand) flex items-center justify-center">
-                <span className="font-(family-name:--font-body) text-(--color-text-on-brand) font-semibold text-lg">
-                  {session.clientName.charAt(0).toUpperCase()}
-                </span>
+              <div className="w-12 h-12 rounded-2xl bg-(--color-brand) flex items-center justify-center overflow-hidden border border-(--color-border)">
+                {session.logoUrl ? (
+                  <img
+                    src={session.logoUrl}
+                    alt={session.clientName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="font-(family-name:--font-body) text-(--color-text-on-brand) font-semibold text-lg">
+                    {session.clientName.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-col gap-1">
@@ -203,7 +235,17 @@ export default function ConsentPage() {
                 </h1>
                 <p className="font-(family-name:--font-body) text-sm text-(--color-text-body)">
                   <span className="font-semibold text-(--color-text-heading)">
-                    {session.clientName}
+                    {session.clientUri ? (
+                      <Link
+                        href={session.clientUri}
+                        target="_blank"
+                        className="hover:underline"
+                      >
+                        {session.clientName}
+                      </Link>
+                    ) : (
+                      session.clientName
+                    )}
                   </span>{" "}
                   wants access to your Aurik account.
                 </p>
@@ -224,23 +266,23 @@ export default function ConsentPage() {
               </span>
               OAUTH 2.0 · OIDC
             </div>
-            {(session.termsUrl || session.privacyUrl) && (
+            {(session.tosUri || session.policyUri) && (
               <div className="flex items-center gap-2">
-                {session.termsUrl && (
+                {session.tosUri && (
                   <Link
-                    href={session.termsUrl}
+                    href={session.tosUri}
                     target="_blank"
                     className="font-(family-name:--font-body) text-xs text-(--color-text-muted) hover:text-(--color-text-body) transition-colors no-underline hover:no-underline"
                   >
                     Terms
                   </Link>
                 )}
-                {session.termsUrl && session.privacyUrl && (
+                {session.tosUri && session.policyUri && (
                   <span className="text-(--color-text-muted) text-xs">·</span>
                 )}
-                {session.privacyUrl && (
+                {session.policyUri && (
                   <Link
-                    href={session.privacyUrl}
+                    href={session.policyUri}
                     target="_blank"
                     className="font-(family-name:--font-body) text-xs text-(--color-text-muted) hover:text-(--color-text-body) transition-colors no-underline hover:no-underline"
                   >
@@ -276,17 +318,35 @@ export default function ConsentPage() {
               Aurik
             </span>
           </Link>
-          <div className="w-12 h-12 rounded-2xl bg-(--color-brand) flex items-center justify-center">
-            <span className="font-(family-name:--font-body) text-(--color-text-on-brand) font-semibold text-lg">
-              {session.clientName.charAt(0).toUpperCase()}
-            </span>
+          <div className="w-12 h-12 rounded-2xl bg-(--color-brand) flex items-center justify-center overflow-hidden border border-(--color-border)">
+            {session.logoUrl ? (
+              <img
+                src={session.logoUrl}
+                alt={session.clientName}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span className="font-(family-name:--font-body) text-(--color-text-on-brand) font-semibold text-lg">
+                {session.clientName.charAt(0).toUpperCase()}
+              </span>
+            )}
           </div>
           <h1 className="font-(family-name:--font-display) text-h1 text-(--color-text-heading) m-0 leading-none">
             Authorize
           </h1>
           <p className="font-(family-name:--font-body) text-sm text-(--color-text-body) dark:text-foreground/60">
             <span className="font-semibold text-(--color-text-heading)">
-              {session.clientName}
+              {session.clientUri ? (
+                <Link
+                  href={session.clientUri}
+                  target="_blank"
+                  className="hover:underline"
+                >
+                  {session.clientName}
+                </Link>
+              ) : (
+                session.clientName
+              )}
             </span>{" "}
             wants access to your account.
           </p>
@@ -358,6 +418,59 @@ export default function ConsentPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Warning Modal */}
+      {showWarning && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full max-w-sm rounded-3xl border border-(--color-border) shadow-2xl bg-card overflow-hidden">
+            <div className="px-8 pt-8 pb-4 flex flex-col items-center text-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-amber-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </div>
+              <div className="flex flex-col gap-2">
+                <h3 className="text-lg font-semibold text-(--color-text-heading)">
+                  Security Warning
+                </h3>
+                <p className="text-sm text-(--color-text-body)">
+                  This application has not provided a Privacy Policy or Terms of
+                  Service link. Granting access may pose a risk to your data.
+                </p>
+                <p className="text-xs text-(--color-text-muted) italic">
+                  Continue at your own risk.
+                </p>
+              </div>
+            </div>
+            <div className="p-6 bg-secondary/50 flex flex-col gap-2">
+              <Button
+                onClick={() => handleAction("approved")}
+                loading={submitting}
+                className="w-full h-11 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-medium transition-colors"
+              >
+                Allow Anyway
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => setShowWarning(false)}
+                className="w-full h-11 rounded-xl text-sm font-medium text-(--color-text-muted) hover:text-(--color-text-body)"
+              >
+                Go Back
+              </Button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

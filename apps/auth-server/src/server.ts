@@ -6,6 +6,7 @@ import { env } from "./config/env.config.js";
 import { authRoutes } from "./modules/auth/auth.router.js";
 import { errorMiddleware } from "@/core/middlewares/error.middleware.js";
 import { discoveryRoutes } from "./modules/oidc/well-known/well-known.routes.js";
+import { oidcRoutes } from "./modules/oidc/oidc.routes.js";
 
 export class AppServer {
   public app: Application;
@@ -36,7 +37,7 @@ export class AppServer {
       res.status(200).json({ status: "healthy", timestamp: new Date() });
     });
     this.app.use("/.well-known", discoveryRoutes);
-    // this.app.use("/o", oidcRoutes);
+    this.app.use("/o", oidcRoutes);
     this.app.use("/auth", authRoutes);
   }
 
