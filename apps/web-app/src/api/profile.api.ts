@@ -3,9 +3,12 @@ import { localClient } from "./api";
 export interface Profile {
   id: string;
   email: string;
-  firstName?: string;
-  lastName?: string;
+  firstName: string;
+  lastName: string;
   profileImageUrl: string;
+  gender: string | null;
+  dateOfBirth: string | null;
+  country: string | null;
   isEmailVerified: boolean;
   createdAt: string;
 }
@@ -13,7 +16,10 @@ export interface Profile {
 export interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
-  profileImageUrl?: string;
+  profileImageUrl: string;
+  gender: string | null;
+  dateOfBirth: string | null;
+  country: string | null;
 }
 
 export interface ChangePasswordData {

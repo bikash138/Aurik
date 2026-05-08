@@ -36,7 +36,7 @@ const HexTokenSchema = z
   .regex(/^[0-9a-fA-F]+$/, "Token must be a valid hexadecimal string")
   .trim();
 
-const NameSchema = (field: string) =>
+export const NameSchema = (field: string) =>
   z
     .string()
     .min(2, `${field} is too short`)

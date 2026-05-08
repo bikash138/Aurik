@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useProfile } from "@/app/hooks/use-profile";
 import { ProfilePageSkeleton } from "@/components/skeletons/Profile-Page-Skeleton";
-import { EditProfileModal } from "@/components/modals/EditProfileModal";
+import { EditProfileModal } from "@/components/modals/Edit-Profile.modal";
 
 const QUICK_LINKS = [
   { label: "My Password", icon: Key },

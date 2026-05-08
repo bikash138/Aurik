@@ -227,7 +227,11 @@ export default function ConsentPage() {
             {(session.termsUrl || session.privacyUrl) && (
               <div className="flex items-center gap-2">
                 {session.termsUrl && (
-                  <Link href={session.termsUrl} target="_blank" className="font-(family-name:--font-body) text-xs text-(--color-text-muted) hover:text-(--color-text-body) transition-colors no-underline hover:no-underline">
+                  <Link
+                    href={session.termsUrl}
+                    target="_blank"
+                    className="font-(family-name:--font-body) text-xs text-(--color-text-muted) hover:text-(--color-text-body) transition-colors no-underline hover:no-underline"
+                  >
                     Terms
                   </Link>
                 )}
@@ -235,7 +239,11 @@ export default function ConsentPage() {
                   <span className="text-(--color-text-muted) text-xs">·</span>
                 )}
                 {session.privacyUrl && (
-                  <Link href={session.privacyUrl} target="_blank" className="font-(family-name:--font-body) text-xs text-(--color-text-muted) hover:text-(--color-text-body) transition-colors no-underline hover:no-underline">
+                  <Link
+                    href={session.privacyUrl}
+                    target="_blank"
+                    className="font-(family-name:--font-body) text-xs text-(--color-text-muted) hover:text-(--color-text-body) transition-colors no-underline hover:no-underline"
+                  >
                     Privacy Policy
                   </Link>
                 )}
@@ -334,14 +342,14 @@ export default function ConsentPage() {
               <Button
                 variant="ghost"
                 onClick={() => handleAction("denied")}
-                loading={submitting}
+                // loading={submitting}
                 className="h-10 px-6 rounded-lg text-sm font-medium text-(--color-text-muted) hover:text-(--color-text-body) hover:bg-secondary transition-colors"
               >
                 Deny
               </Button>
               <Button
                 onClick={() => handleAction("approved")}
-                loading={submitting}
+                // loading={submitting}
                 className="h-10 px-6 rounded-lg bg-primary hover:opacity-90 text-primary-foreground dark:bg-lime-400 dark:text-(--color-brand) text-sm font-medium transition-opacity"
               >
                 Allow

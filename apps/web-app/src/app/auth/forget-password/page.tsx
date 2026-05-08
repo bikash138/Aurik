@@ -84,7 +84,8 @@ export default function ForgotPassword() {
                 <strong className="text-(--color-text-heading) font-semibold">
                   {submittedEmail}
                 </strong>
-                . Please check your inbox and click the link to choose a new password.
+                . Please check your inbox and click the link to choose a new
+                password.
               </p>
               <div className="flex justify-center pt-2">
                 <Link
@@ -130,7 +131,7 @@ export default function ForgotPassword() {
                 </Link>
                 <Button
                   type="submit"
-                  loading={isSubmitting}
+                  // loading={isSubmitting}
                   className="h-10 px-6 rounded-lg bg-primary hover:opacity-90 text-primary-foreground dark:bg-lime-400 dark:text-(--color-brand) text-sm font-medium transition-opacity"
                 >
                   Send code

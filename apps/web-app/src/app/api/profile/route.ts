@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@aurik/database";
+import { updateProfileSchema } from "@/zod/profile.schema";
 
 async function getSessionUser(req: NextRequest) {
   const token =
@@ -56,15 +57,34 @@ export async function PUT(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { firstName, lastName, profileImageUrl } = body;
+    const parsed = updateProfileSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: "Invalid request body", details: parsed.error.issues },
+        { status: 400 },
+      );
+    }
+
+    const {
+      firstName,
+      lastName,
+      profileImageUrl,
+      gender,
+      dateOfBirth,
+      country,
+    } = parsed.data;
 
     const updatedUser = await prisma.user.update({
       where: { id: user.id },
       data: {
-        firstName: firstName || null,
-        lastName: lastName || null,
-        profileImageUrl: profileImageUrl || null,
-      },
+        firstName,
+        lastName,
+        profileImageUrl,
+        gender: gender,
+        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+        country: country ?? null,
+      } as any,
     });
 
     return NextResponse.json({ data: updatedUser });
