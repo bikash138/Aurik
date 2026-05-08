@@ -5,7 +5,7 @@ export interface Profile {
   email: string;
   firstName?: string;
   lastName?: string;
-  profileImageUrl?: string;
+  profileImageUrl: string;
   isEmailVerified: boolean;
   createdAt: string;
 }

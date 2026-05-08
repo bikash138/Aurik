@@ -32,11 +32,14 @@ export class AuthService {
 
     const passwordHash = this.hashPassword(data.password);
 
+    const profileImageUrl = `https://api.dicebear.com/9.x/initials/svg?seed=Felix`;
+
     const newUser = await AuthRepo.createUser(
       data.email,
       passwordHash,
       data.firstName,
       data.lastName,
+      profileImageUrl,
     );
 
     await MailService.sendEmailVerificationEmail(newUser.id, newUser.email);

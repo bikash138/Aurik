@@ -13,6 +13,7 @@ export class AuthRepo {
     passwordHash: string,
     firstName: string,
     lastName: string,
+    profileImageUrl: string,
   ) {
     return await prisma.user.create({
       data: {
@@ -20,6 +21,7 @@ export class AuthRepo {
         passwordHash,
         firstName,
         lastName,
+        profileImageUrl,
         isEmailVerified: false,
         isActive: true,
       },

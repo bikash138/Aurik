@@ -13,6 +13,13 @@ enum ClientType {
   SERVICE
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  NON_BINARY
+  PREFER_NOT_TO_SAY
+}
+
 enum VerificationTokenType {
   EMAIL_VERIFICATION
   PASSWORD_RESET
@@ -23,9 +30,13 @@ model User {
   email        String @unique @db.VarChar(322)
   passwordHash String @map("password_hash") @db.VarChar(66)
 
-  firstName       String  @map("first_name") @db.VarChar(25)
-  lastName        String  @map("last_name") @db.VarChar(25)
-  profileImageUrl String? @map("profile_image_url") @db.Text
+  firstName       String @map("first_name") @db.VarChar(25)
+  lastName        String @map("last_name") @db.VarChar(25)
+  profileImageUrl String @map("profile_image_url") @db.Text
+
+  dateOfBirth DateTime? @map("date_of_birth") @db.Date
+  gender      Gender?
+  country     String?   @db.VarChar(100)
 
   isEmailVerified Boolean @default(false) @map("is_email_verified")
   isActive        Boolean @default(true) @map("is_active")
