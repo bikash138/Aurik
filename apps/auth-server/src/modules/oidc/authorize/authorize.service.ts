@@ -31,6 +31,10 @@ export class AuthorizeService {
       );
     }
 
+    if (client.pkceRequired && !query.code_challenge) {
+      throw ApiError.validationError("PKCE_REQUIRED");
+    }
+
     return client;
   }
 

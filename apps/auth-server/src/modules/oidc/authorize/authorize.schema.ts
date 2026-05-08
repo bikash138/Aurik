@@ -14,10 +14,8 @@ export const authorizeSchema = z.object({
       'scope must include "openid"',
     ),
   state: z.string().optional(),
-  code_challenge: z.string().min(1, "code_challenge is required"),
-  code_challenge_method: z.literal("S256", {
-    message: "code_challenge_method must be S256",
-  }),
+  code_challenge: z.string().optional(),
+  code_challenge_method: z.literal("S256").optional(),
   prompt: z.string().optional(),
 });
 
