@@ -42,9 +42,11 @@ export class AuthHandler {
   public static verifyEmail = asyncHandler(
     async (req: Request, res: Response) => {
       const body = VerifyEmailBodySchema.parse(req.body);
-      await AuthService.verifyEmail(body);
+      const returnTo = await AuthService.verifyEmail(body);
 
-      res.status(200).json({ message: "Email verfied sucessfully" });
+      res
+        .status(200)
+        .json({ message: "Email verified successfully", data: { returnTo } });
     },
   );
 

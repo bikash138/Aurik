@@ -5,6 +5,7 @@ export class MailRepo {
     userId: string,
     token: string,
     expiresAt: Date,
+    returnTo?: string,
   ) {
     return await prisma.verificationToken.create({
       data: {
@@ -12,6 +13,7 @@ export class MailRepo {
         token,
         type: VerificationTokenType.EMAIL_VERIFICATION,
         expiresAt,
+        returnTo,
       },
     });
   }

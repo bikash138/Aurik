@@ -4,6 +4,7 @@ import {
   SigninRequest,
   SignupRequest,
   VerifyEmailRequest,
+  VerifyEmailResponse,
   ForgotPasswordRequest,
   ResetPasswordRequest,
   AuthResponse,
@@ -23,8 +24,8 @@ export class AuthAPI {
 
   public static async verifyEmail(
     data: VerifyEmailRequest,
-  ): Promise<GenericResponse> {
-    const response = await apiClient.post<GenericResponse>(
+  ): Promise<VerifyEmailResponse> {
+    const response = await apiClient.post<VerifyEmailResponse>(
       "/auth/verify-email",
       data,
     );

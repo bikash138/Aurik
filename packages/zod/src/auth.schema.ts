@@ -66,6 +66,7 @@ export const SignupBodySchema = z
     password: PasswordSchema,
     firstName: NameSchema("First Name"),
     lastName: NameSchema("Last Name"),
+    returnTo: z.string().optional(),
   })
   .strict();
 
@@ -103,6 +104,14 @@ export const GenericResponseSchema = z.object({
   message: z.string(),
 });
 
+export const VerifyEmailResponseSchema = GenericResponseSchema.extend({
+  data: z
+    .object({
+      returnTo: z.string().optional(),
+    })
+    .optional(),
+});
+
 export const AuthResponseSchema = GenericResponseSchema.extend({
   data: UserSchema,
 });
@@ -124,6 +133,7 @@ export const ApiErrorResponseSchema = z.object({
 export type SignupRequest = z.infer<typeof SignupBodySchema>;
 export type SigninRequest = z.infer<typeof SigninBodySchema>;
 export type VerifyEmailRequest = z.infer<typeof VerifyEmailBodySchema>;
+export type VerifyEmailResponse = z.infer<typeof VerifyEmailResponseSchema>;
 export type ForgotPasswordRequest = z.infer<typeof ForgotPasswordBodySchema>;
 export type ResetPasswordRequest = z.infer<typeof ResetPasswordBodySchema>;
 

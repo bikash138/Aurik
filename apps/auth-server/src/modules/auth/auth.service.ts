@@ -45,7 +45,11 @@ export class AuthService {
       profileImageUrl,
     );
 
-    await MailService.sendEmailVerificationEmail(newUser.id, newUser.email);
+    await MailService.sendEmailVerificationEmail(
+      newUser.id,
+      newUser.email,
+      data.returnTo,
+    );
 
     return {
       id: newUser.id,
@@ -121,6 +125,8 @@ export class AuthService {
     }
 
     await AuthRepo.markEmailAsVerified(record.userId, record.id);
+
+    return record.returnTo;
   }
 
   public static async forgotPassword(data: ForgotPasswordRequest) {

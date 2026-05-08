@@ -17,6 +17,7 @@ import { useState } from "react";
 export default function Signin() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const returnTo = searchParams.get("return_to");
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -31,7 +32,7 @@ export default function Signin() {
     try {
       const result = await AuthAPI.signin(data);
       toast.success(result.message);
-      router.push(searchParams.get("callbackUrl") || "/profile");
+      router.push(returnTo || "/profile");
     } catch (error: any) {
       const message =
         error.response?.data?.error?.message || "Failed to sign in";
@@ -133,7 +134,7 @@ export default function Signin() {
 
             <div className="flex items-center justify-between pt-2">
               <Link
-                href="/auth/signup"
+                href={`/auth/signup${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ""}`}
                 className="text-md text-(--color-lime-dark) hover:opacity-75 font-medium transition-opacity no-underline hover:no-underline"
               >
                 Create account

@@ -4,7 +4,7 @@ import cookieParser from "cookie-parser";
 import { logger, httpLogger } from "@/config/logger.config.js";
 import { env } from "./config/env.config.js";
 import { authRoutes } from "./modules/auth/auth.router.js";
-import { errorMiddleware } from "@/core/middleware/error.middleware.js";
+import { errorMiddleware } from "@/core/middlewares/error.middleware.js";
 import { discoveryRoutes } from "./modules/oidc/well-known/well-known.routes.js";
 
 export class AppServer {

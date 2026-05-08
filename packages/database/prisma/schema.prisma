@@ -81,10 +81,10 @@ model Client {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   //Branding
-  logoUrl             String  @map("logo_url") @db.Text
-  clientUri           String  @map("client_uri") @db.Text
-  policyUri           String? @map("policy_uri") @db.Text
-  tosUri              String? @map("tos_uri") @db.Text
+  logoUrl   String  @map("logo_url") @db.Text
+  clientUri String  @map("client_uri") @db.Text
+  policyUri String? @map("policy_uri") @db.Text
+  tosUri    String? @map("tos_uri") @db.Text
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -227,6 +227,7 @@ model VerificationToken {
   type      VerificationTokenType
   expiresAt DateTime              @map("expires_at")
   usedAt    DateTime?             @map("used_at")
+  returnTo  String?               @map("return_to") @db.Text
 
   userId String @map("user_id") @db.Uuid
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)

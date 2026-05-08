@@ -13,13 +13,14 @@ export class MailService {
   public static async sendEmailVerificationEmail(
     userId: string,
     email: string,
+    returnTo?: string,
   ) {
     const token = this.generateToken();
     const expiresAt = new Date(
       Date.now() + EXPIRATION_TIMES.EMAIL_VERIFICATION,
     );
 
-    await MailRepo.createVerificationToken(userId, token, expiresAt);
+    await MailRepo.createVerificationToken(userId, token, expiresAt, returnTo);
 
     const verificationLink = `${env.AUTH_UI_URL}/auth/verify-email?token=${token}`;
 

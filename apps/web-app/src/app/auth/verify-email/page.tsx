@@ -8,14 +8,17 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 import { AuthAPI } from "@/api/auth.api";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type VerifyState = "verifying" | "success" | "error";
 
 function VerifyEmailContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
 
   const [state, setState] = useState<VerifyState>("verifying");
+  const [returnTo, setReturnTo] = useState<string | null>(null);
 
   useEffect(() => {
     if (!token) {
@@ -27,6 +30,7 @@ function VerifyEmailContent() {
       try {
         const result = await AuthAPI.verifyEmail({ token });
         toast.success(result.message);
+        setReturnTo(result.data?.returnTo || null);
         setState("success");
       } catch (error: any) {
         const message =
@@ -112,7 +116,7 @@ function VerifyEmailContent() {
               You can now sign in to your account.
             </p>
             <Link
-              href="/auth/signin"
+              href={`/auth/signin${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ""}`}
               className="h-10 px-6 rounded-lg bg-primary hover:opacity-90 text-primary-foreground dark:bg-lime-400 dark:text-(--color-brand) text-sm font-medium inline-flex items-center transition-opacity no-underline hover:no-underline"
             >
               Sign in

@@ -9,13 +9,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AuthAPI } from "@/api/auth.api";
 import { useState } from "react";
 
 export default function Signup() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("return_to");
   const [isLoading, setIsLoading] = useState(false);
   const {
     register,
@@ -28,7 +30,7 @@ export default function Signup() {
   const onSubmit = async (data: SignupRequest) => {
     setIsLoading(true);
     try {
-      const result = await AuthAPI.signup(data);
+      const result = await AuthAPI.signup({ ...data, returnTo: returnTo || undefined });
       toast.success(result.message);
       console.log("Logged in successfully!", result);
       router.push("/auth/signin");
@@ -241,7 +243,7 @@ export default function Signup() {
 
             <div className="flex items-center justify-between pt-2">
               <Link
-                href="/auth/signin"
+                href={`/auth/signin${returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : ""}`}
                 className="text-md text-(--color-lime-dark) hover:opacity-75 font-medium transition-opacity no-underline hover:no-underline"
               >
                 Sign in instead
