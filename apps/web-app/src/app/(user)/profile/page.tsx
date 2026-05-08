@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   Search,
   Key,
@@ -7,9 +8,11 @@ import {
   ShieldCheck,
   Activity,
   Mail,
+  Pencil,
 } from "lucide-react";
 import { useProfile } from "@/app/hooks/use-profile";
 import { ProfilePageSkeleton } from "@/components/skeletons/Profile-Page-Skeleton";
+import { EditProfileModal } from "@/components/modals/EditProfileModal";
 
 const QUICK_LINKS = [
   { label: "My Password", icon: Key },
@@ -21,6 +24,7 @@ const QUICK_LINKS = [
 
 export default function ProfilePage() {
   const { data: user, isLoading } = useProfile();
+  const [editOpen, setEditOpen] = useState(false);
 
   if (isLoading) return <ProfilePageSkeleton />;
 
@@ -32,16 +36,33 @@ export default function ProfilePage() {
     <main className="flex-1 flex flex-col items-center px-4 py-12 sm:py-16">
       <div className="flex flex-col items-center gap-5 w-full max-w-xl">
         {/* Avatar */}
-        {user?.profileImageUrl ? (
-          <img
-            src={user.profileImageUrl}
-            alt={fullName}
-            className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-lg ring-4 ring-[var(--color-border)]"
+        <div className="relative">
+          {user?.profileImageUrl ? (
+            <img
+              src={user.profileImageUrl}
+              alt={fullName}
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-lg ring-4 ring-[var(--color-border)]"
+            />
+          ) : (
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[var(--color-brand)] flex items-center justify-center font-bold text-4xl sm:text-5xl shadow-lg ring-4 ring-[var(--color-border)] text-[var(--color-lime)]">
+              {fullName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <button
+            onClick={() => setEditOpen(true)}
+            className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-(--color-brand) flex items-center justify-center shadow-md ring-2 ring-(--color-page-bg)"
+            aria-label="Edit profile"
+          >
+            <Pencil className="w-3.5 h-3.5 text-(--color-lime)" />
+          </button>
+        </div>
+
+        {user && (
+          <EditProfileModal
+            open={editOpen}
+            onOpenChange={setEditOpen}
+            user={user}
           />
-        ) : (
-          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[var(--color-brand)] flex items-center justify-center font-bold text-4xl sm:text-5xl shadow-lg ring-4 ring-[var(--color-border)] text-[var(--color-lime)]">
-            {fullName.charAt(0).toUpperCase()}
-          </div>
         )}
 
         {/* Name & email */}
@@ -54,11 +75,12 @@ export default function ProfilePage() {
 
         {/* Search */}
         <div className="w-full relative mt-2">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
           <input
             type="text"
             placeholder="Search Aurik Account"
-            className="input w-full h-12 pl-11 pr-4 rounded-full"
+            className="input w-full h-12 rounded-full"
+            style={{ paddingLeft: "2.75rem" }}
           />
         </div>
 

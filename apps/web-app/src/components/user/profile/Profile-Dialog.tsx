@@ -72,7 +72,7 @@ export function ProfileDialog() {
             ) : (
               <>
                 <p className="font-medium text-heading text-sm truncate">{fullName}</p>
-                <p className="text-xs text-muted mt-0.5 truncate">{user?.email}</p>
+                <p className="text-xs text-body-color mt-0.5 truncate">{user?.email}</p>
               </>
             )}
           </div>
@@ -81,7 +81,7 @@ export function ProfileDialog() {
         <DropdownMenuSeparator className="bg-(--color-border)" />
 
         <div className="px-4 py-2 flex items-center justify-between">
-          <p className="text-xs text-muted">Theme</p>
+          <p className="text-xs text-body-color">Theme</p>
           <ThemeToggle />
         </div>
 
@@ -97,7 +97,7 @@ export function ProfileDialog() {
               <p className="text-sm font-medium text-heading leading-none">
                 Developer Panel
               </p>
-              <p className="text-xs text-muted mt-0.5">
+              <p className="text-xs text-body-color mt-0.5">
                 API keys, logs & tools
               </p>
             </div>
