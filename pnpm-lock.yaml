@@ -81,6 +81,9 @@ importers:
 
   apps/web-app:
     dependencies:
+      '@aurik/database':
+        specifier: workspace:*
+        version: link:../../packages/database
       '@aurik/zod':
         specifier: workspace:*
         version: link:../../packages/zod

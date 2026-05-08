@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
@@ -11,18 +11,14 @@ import {
 import { Code2, LogOut, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { AuthAPI } from "@/api/auth.api";
-import type { GetMeResponse } from "@aurik/zod/auth";
+import { useProfile } from "@/app/hooks/use-profile";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProfileDialog() {
   const router = useRouter();
-  const [profile, setProfile] = useState<GetMeResponse | null>(null);
+  const { data: user, isLoading } = useProfile();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-
-  useEffect(() => {
-    AuthAPI.getMe().then(setProfile).catch(console.error);
-  }, []);
-
-  const user = profile?.data;
   const fullName = user
     ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Aurik User"
     : "Aurik User";
@@ -47,37 +43,63 @@ export function ProfileDialog() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="w-9 h-9 rounded-full bg-[var(--color-brand)] flex items-center justify-center text-[var(--color-lime)] font-semibold text-sm hover:opacity-90 transition-opacity outline-none">
-          {fullName.charAt(0).toUpperCase()}
-        </button>
+        {isLoading ? (
+          <Skeleton className="bg-(--color-border) w-9 h-9 rounded-full" />
+        ) : (
+          <button className="w-9 h-9 rounded-full bg-(--color-brand) flex items-center justify-center text-(--color-lime) font-semibold text-sm hover:opacity-90 transition-opacity outline-none">
+            {fullName.charAt(0).toUpperCase()}
+          </button>
+        )}
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-64 bg-[var(--color-page-bg-deep)] border-[var(--color-border)] p-0 overflow-hidden"
+        className="w-64 bg-(--color-page-bg-deep) border-(--color-border) p-0 overflow-hidden"
       >
-        <div className="flex flex-col items-center gap-3 px-4 py-5">
-          <div className="w-14 h-14 rounded-full bg-[var(--color-brand)] flex items-center justify-center text-[var(--color-lime)] font-bold text-2xl">
-            {fullName.charAt(0).toUpperCase()}
-          </div>
-          <div className="text-center">
-            <p className="font-medium text-heading text-sm">{fullName}</p>
-            <p className="text-xs text-muted mt-0.5">{user?.email}</p>
+        <div className="flex items-center gap-3 px-4 py-5">
+          {isLoading ? (
+            <Skeleton className="bg-(--color-border) w-12 h-12 rounded-full shrink-0" />
+          ) : (
+            <div className="w-12 h-12 rounded-full bg-(--color-brand) flex items-center justify-center text-(--color-lime) font-bold text-xl shrink-0">
+              {fullName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div className="min-w-0 flex flex-col">
+            {isLoading ? (
+              <>
+                <Skeleton className="bg-(--color-border) h-5 w-28 rounded" />
+                <Skeleton className="bg-(--color-border) h-4 w-36 rounded mt-0.5" />
+              </>
+            ) : (
+              <>
+                <p className="font-medium text-heading text-sm truncate">{fullName}</p>
+                <p className="text-xs text-muted mt-0.5 truncate">{user?.email}</p>
+              </>
+            )}
           </div>
         </div>
 
-        <DropdownMenuSeparator className="bg-[var(--color-border)]" />
+        <DropdownMenuSeparator className="bg-(--color-border)" />
+
+        <div className="px-4 py-2 flex items-center justify-between">
+          <p className="text-xs text-muted">Theme</p>
+          <ThemeToggle />
+        </div>
+
+        <DropdownMenuSeparator className="bg-(--color-border)" />
 
         <div className="p-1.5">
           <button
             onClick={() => router.push("/developer")}
-            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg hover:bg-[var(--color-lime-tint)] transition-colors text-left"
+            className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg hover:bg-(--color-lime-tint) transition-colors text-left"
           >
-            <Code2 className="w-4 h-4 text-[var(--color-text-muted)] shrink-0" />
+            <Code2 className="w-4 h-4 text-(--color-text-muted) shrink-0" />
             <div>
               <p className="text-sm font-medium text-heading leading-none">
                 Developer Panel
               </p>
-              <p className="text-xs text-muted mt-0.5">API keys, logs & tools</p>
+              <p className="text-xs text-muted mt-0.5">
+                API keys, logs & tools
+              </p>
             </div>
           </button>
 
@@ -90,7 +112,7 @@ export function ProfileDialog() {
               <Loader2 className="w-4 h-4 text-muted-foreground animate-spin shrink-0 mx-auto" />
             ) : (
               <>
-                <LogOut className="w-4 h-4 text-[var(--color-text-muted)] group-hover:text-destructive transition-colors shrink-0" />
+                <LogOut className="w-4 h-4 text-(--color-text-muted) group-hover:text-destructive transition-colors shrink-0" />
                 <p className="text-sm font-medium text-heading group-hover:text-destructive transition-colors">
                   Sign out
                 </p>

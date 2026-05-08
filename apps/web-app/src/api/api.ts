@@ -1,10 +1,10 @@
 import axios from "axios";
 import { toast } from "sonner";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 export const apiClient = axios.create({
-  baseURL: API_URL.startsWith("http") ? API_URL : `${API_URL}/api`,
+  baseURL: API_URL,
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",

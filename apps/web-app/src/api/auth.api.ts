@@ -8,7 +8,6 @@ import {
   ResetPasswordRequest,
   AuthResponse,
   GenericResponse,
-  GetMeResponse,
 } from "@aurik/zod/auth";
 
 export class AuthAPI {
@@ -54,11 +53,6 @@ export class AuthAPI {
 
   public static async signout() {
     const response = await apiClient.post("/auth/signout");
-    return response.data;
-  }
-
-  public static async getMe() {
-    const response = await apiClient.get<GetMeResponse>("/auth/me");
     return response.data;
   }
 }
