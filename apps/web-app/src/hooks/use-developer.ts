@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { DeveloperAPI, Application } from "@/api/developer.api";
+import { DeveloperAPI } from "@/api/developer.api";
+import { CreateAppInput, UpdateAppInput } from "@/zod/apps.schema";
 
 export const developerKeys = {
   all: ["developer"] as const,
@@ -23,13 +24,11 @@ export function useApplication(clientId: string) {
   });
 }
 
-
 export function useCreateApplication() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { name: string; redirectUris: string[] }) =>
-      DeveloperAPI.createApplication(data),
+    mutationFn: (data: CreateAppInput) => DeveloperAPI.createApplication(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: developerKeys.applications() });
     },
@@ -40,13 +39,10 @@ export function useUpdateApplication(clientId: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: Partial<Application>) =>
+    mutationFn: (data: UpdateAppInput) =>
       DeveloperAPI.updateApplication(clientId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: developerKeys.application(clientId),
-      });
-      // Also invalidate the list to be safe
+    onSuccess: (updatedApp) => {
+      queryClient.setQueryData(developerKeys.application(clientId), updatedApp);
       queryClient.invalidateQueries({ queryKey: developerKeys.applications() });
     },
   });

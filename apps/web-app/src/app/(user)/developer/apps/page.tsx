@@ -9,9 +9,9 @@ import {
   MoreHorizontal,
   Loader2,
   X,
-  Copy,
-  Check,
 } from "lucide-react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -39,6 +39,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useApplications, useCreateApplication } from "@/hooks/use-developer";
 import { CredentialsDialog } from "@/components/developer/CredentialsDialog";
+import { CreateAppSchema, CreateAppInput } from "@/zod/apps.schema";
+import { cn } from "@/lib/utils";
 
 export default function DeveloperOverviewPage() {
   const router = useRouter();
@@ -46,31 +48,28 @@ export default function DeveloperOverviewPage() {
   const { mutate: createApp, isPending: creating } = useCreateApplication();
 
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [newAppName, setNewAppName] = useState("");
-  const [redirectUris, setRedirectUris] = useState<string[]>([""]);
   const [createdApp, setCreatedApp] = useState<{
     clientId: string;
     clientSecret: string;
     name: string;
   } | null>(null);
 
-  function handleCreate() {
-    if (!newAppName.trim() || redirectUris.filter(Boolean).length === 0) return;
+  const form = useForm<CreateAppInput>({
+    resolver: zodResolver(CreateAppSchema),
+    defaultValues: {
+      name: "",
+      redirectUris: [""],
+    },
+  });
 
-    createApp(
-      {
-        name: newAppName.trim(),
-        redirectUris: redirectUris.filter(Boolean),
+  function onSubmit(data: CreateAppInput) {
+    createApp(data, {
+      onSuccess: (data) => {
+        setDialogOpen(false);
+        form.reset();
+        setCreatedApp(data);
       },
-      {
-        onSuccess: (data) => {
-          setDialogOpen(false);
-          setNewAppName("");
-          setRedirectUris([""]);
-          setCreatedApp(data);
-        },
-      },
-    );
+    });
   }
 
   return (
@@ -101,10 +100,18 @@ export default function DeveloperOverviewPage() {
           <Table>
             <TableHeader>
               <TableRow className="bg-secondary/40 border-b border-border">
-                <TableHead className="text-secondary-foreground font-medium">Name</TableHead>
-                <TableHead className="text-secondary-foreground font-medium">Client ID</TableHead>
-                <TableHead className="text-secondary-foreground font-medium">Status</TableHead>
-                <TableHead className="text-secondary-foreground font-medium">Created</TableHead>
+                <TableHead className="text-secondary-foreground font-medium">
+                  Name
+                </TableHead>
+                <TableHead className="text-secondary-foreground font-medium">
+                  Client ID
+                </TableHead>
+                <TableHead className="text-secondary-foreground font-medium">
+                  Status
+                </TableHead>
+                <TableHead className="text-secondary-foreground font-medium">
+                  Created
+                </TableHead>
                 <TableHead className="w-10" />
               </TableRow>
             </TableHeader>
@@ -117,8 +124,16 @@ export default function DeveloperOverviewPage() {
                 >
                   <TableCell className="font-medium text-heading">
                     <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0">
-                        <AppWindow className="h-4 w-4 text-secondary-foreground" />
+                      <div className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
+                        {app.logoUrl ? (
+                          <img
+                            src={app.logoUrl}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <AppWindow className="h-4 w-4 text-secondary-foreground" />
+                        )}
                       </div>
                       {app.name}
                     </div>
@@ -127,8 +142,10 @@ export default function DeveloperOverviewPage() {
                     {app.clientId}
                   </TableCell>
                   <TableCell>
-                    <span className={`badge ${app.status === "active" ? "badge-active" : "badge-revoked"}`}>
-                      {app.status}
+                    <span
+                      className={`badge ${app.isActive ? "badge-active" : "badge-revoked"}`}
+                    >
+                      {app.isActive ? "active" : "inactive"}
                     </span>
                   </TableCell>
                   <TableCell className="text-muted text-sm">
@@ -166,12 +183,12 @@ export default function DeveloperOverviewPage() {
 
       <CreateAppDialog
         open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        name={newAppName}
-        onNameChange={setNewAppName}
-        redirectUris={redirectUris}
-        onRedirectUrisChange={setRedirectUris}
-        onCreate={handleCreate}
+        onOpenChange={(v) => {
+          setDialogOpen(v);
+          if (!v) form.reset();
+        }}
+        form={form}
+        onSubmit={form.handleSubmit(onSubmit)}
         creating={creating}
       />
 
@@ -214,37 +231,27 @@ function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
 interface CreateAppDialogProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  name: string;
-  onNameChange: (v: string) => void;
-  redirectUris: string[];
-  onRedirectUrisChange: (v: string[]) => void;
-  onCreate: () => void;
+  form: any;
+  onSubmit: () => void;
   creating: boolean;
 }
 
 function CreateAppDialog({
   open,
   onOpenChange,
-  name,
-  onNameChange,
-  redirectUris,
-  onRedirectUrisChange,
-  onCreate,
+  form,
+  onSubmit,
   creating,
 }: CreateAppDialogProps) {
-  function updateUri(idx: number, val: string) {
-    const next = [...redirectUris];
-    next[idx] = val;
-    onRedirectUrisChange(next);
-  }
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "redirectUris",
+  });
 
-  function addUri() {
-    onRedirectUrisChange([...redirectUris, ""]);
-  }
-
-  function removeUri(idx: number) {
-    onRedirectUrisChange(redirectUris.filter((_, i) => i !== idx));
-  }
+  const {
+    register,
+    formState: { errors },
+  } = form;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -255,72 +262,86 @@ function CreateAppDialog({
             Give your application a name and at least one redirect URL.
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 py-2">
+        <form onSubmit={onSubmit} className="space-y-4 py-2">
           <div className="space-y-1.5">
             <Label htmlFor="app-name">Name</Label>
             <Input
               id="app-name"
               placeholder="My App"
-              value={name}
-              onChange={(e) => onNameChange(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && onCreate()}
+              {...register("name")}
+              className={errors.name ? "border-destructive" : ""}
             />
+            {errors.name && (
+              <p className="text-[10px] font-medium text-destructive">
+                {errors.name.message as string}
+              </p>
+            )}
           </div>
           <div className="space-y-2">
             <Label>Redirect URIs</Label>
             <div className="space-y-2">
-              {redirectUris.map((uri, idx) => (
-                <div key={idx} className="flex gap-2">
-                  <Input
-                    placeholder="https://example.com/callback"
-                    value={uri}
-                    onChange={(e) => updateUri(idx, e.target.value)}
-                    className="font-mono text-xs"
-                  />
-                  {redirectUris.length > 1 && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 shrink-0"
-                      onClick={() => removeUri(idx)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+              {fields.map((field, idx) => (
+                <div key={field.id} className="space-y-1">
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="https://example.com/callback"
+                      {...register(`redirectUris.${idx}` as const)}
+                      className={cn(
+                        "font-mono text-xs",
+                        errors.redirectUris?.[idx] ? "border-destructive" : "",
+                      )}
+                    />
+                    {fields.length > 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 shrink-0"
+                        onClick={() => remove(idx)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    )}
+                  </div>
+                  {errors.redirectUris?.[idx] && (
+                    <p className="text-[10px] font-medium text-destructive">
+                      {errors.redirectUris[idx].message as string}
+                    </p>
                   )}
                 </div>
               ))}
+              {errors.redirectUris && !Array.isArray(errors.redirectUris) && (
+                <p className="text-[10px] font-medium text-destructive">
+                  {errors.redirectUris.message as string}
+                </p>
+              )}
             </div>
             <Button
+              type="button"
               variant="link"
               size="sm"
               className="px-0 h-auto text-xs text-secondary-foreground hover:text-primary"
-              onClick={addUri}
+              onClick={() => append("")}
             >
               <Plus className="h-3 w-3 mr-1" />
               Add URI
             </Button>
           </div>
-        </div>
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            disabled={creating}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={onCreate}
-            disabled={
-              !name.trim() ||
-              redirectUris.filter(Boolean).length === 0 ||
-              creating
-            }
-          >
-            {creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-            Create
-          </Button>
-        </DialogFooter>
+          <DialogFooter className="pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={creating}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={creating}>
+              {creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Create
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

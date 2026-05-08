@@ -37,7 +37,7 @@ export async function GET() {
       allowedCallbacks: client.redirectUris,
       allowedLogoutCallbacks: client.postLogoutUris,
       createdAt: client.createdAt.toISOString(),
-      status: client.isActive ? "active" : "inactive",
+      isActive: client.isActive,
     }));
 
     return NextResponse.json({ data: applications });
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
         allowedCallbacks: client.redirectUris,
         allowedLogoutCallbacks: client.postLogoutUris,
         createdAt: client.createdAt.toISOString(),
-        status: client.isActive ? "active" : "inactive",
+        isActive: client.isActive,
       },
     });
   } catch (error) {
