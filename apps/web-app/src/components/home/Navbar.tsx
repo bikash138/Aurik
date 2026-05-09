@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { navLinks } from "@/data/nav-links";
-import Image from "next/image";
+import { Logo } from "@/components/Logo";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
@@ -22,22 +22,7 @@ export function Navbar() {
             href="/"
             className="flex items-center font-display text-2xl gap-x-1 font-medium tracking-tight text-foreground mr-2 no-underline"
           >
-            {/* Light Theme Logo */}
-            <Image
-              src="/logo.svg"
-              alt="Aurik Logo"
-              width={24}
-              height={24}
-              className="w-6 h-6 dark:hidden"
-            />
-            {/* Dark Theme Logo */}
-            <Image
-              src="/logo_white.svg"
-              alt="Aurik Logo"
-              width={24}
-              height={24}
-              className="w-6 h-6 hidden dark:block"
-            />
+            <Logo />
             Aurik
           </Link>
 
@@ -58,7 +43,7 @@ export function Navbar() {
           <div className="flex items-center gap-1">
             <Link
               href="/developer"
-              className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-95 transition-all active:scale-95 no-underline text-sm"
+              className="hidden md:flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground font-medium hover:opacity-95 transition-all active:scale-95 no-underline text-md"
             >
               Get Started
             </Link>

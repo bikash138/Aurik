@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 export function Hero() {
   return (
     <main className="relative pt-30 pb-20 px-6 overflow-hidden">
-      {/* GRADIENT GLOW */}
+      {/* GRADIENT */}
       <div className="pointer-events-none absolute inset-0 flex items-start justify-center z-0">
         <div className="w-[600px] h-[400px] rounded-full bg-lime-300/20 blur-[120px] translate-y-10" />
       </div>
