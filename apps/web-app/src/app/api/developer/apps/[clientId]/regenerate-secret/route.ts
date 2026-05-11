@@ -53,9 +53,10 @@ export async function POST(
     });
 
     return NextResponse.json({
+      success: true,
+      message: "Secret regenerated successfully",
       data: {
         clientSecret: newSecret,
-        message: "Secret regenerated successfully",
       },
     });
   } catch (error) {

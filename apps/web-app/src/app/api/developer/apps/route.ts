@@ -40,7 +40,11 @@ export async function GET() {
       isActive: client.isActive,
     }));
 
-    return NextResponse.json({ data: applications });
+    return NextResponse.json({
+      success: true,
+      message: "Applications fetched successfully",
+      data: applications,
+    });
   } catch (error) {
     logger.error({ err: error }, "[APPS_GET]");
     return NextResponse.json(
@@ -112,6 +116,8 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({
+      success: true,
+      message: "Application created successfully",
       data: {
         clientId: client.clientId,
         clientSecret,

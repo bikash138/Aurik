@@ -41,6 +41,8 @@ export async function GET(
     }
 
     return NextResponse.json({
+      success: true,
+      message: "Application fetched successfully",
       data: {
         clientId: client.clientId,
         name: client.appName,
@@ -137,6 +139,8 @@ export async function PATCH(
     });
 
     return NextResponse.json({
+      success: true,
+      message: "Application updated successfully",
       data: {
         clientId: updatedClient.clientId,
         name: updatedClient.appName,
@@ -206,6 +210,8 @@ export async function DELETE(
     });
 
     return NextResponse.json({
+      success: true,
+      message: "Application deleted successfully",
       data: { message: "Application deleted successfully" },
     });
   } catch (error) {

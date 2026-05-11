@@ -1,16 +1,28 @@
 import { z } from "zod";
 
-const optionalUrl = z.union([z.string().url("Invalid URL"), z.literal("")]);
+const optionalUrl = z.union([
+  z.string().trim().url("Invalid URL"),
+  z.literal(""),
+]);
 
 export const CreateAppSchema = z.object({
-  name: z.string().min(1, "Name is required").max(50, "Name is too long"),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(50, "Name is too long"),
   redirectUris: z
-    .array(z.string().url("Invalid redirect URL"))
+    .array(z.url("Invalid redirect URL"))
     .min(1, "At least one redirect URI is required"),
 });
 
 export const UpdateAppSchema = z.object({
-  name: z.string().min(1, "Name is required").max(50, "Name is too long").optional(),
+  name: z
+    .string()
+    .trim()
+    .min(1, "Name is required")
+    .max(50, "Name is too long")
+    .optional(),
   allowedCallbacks: z
     .array(optionalUrl)
     .min(1, "At least one redirect URI is required")
