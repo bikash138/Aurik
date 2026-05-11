@@ -30,6 +30,7 @@ export const refreshTokenSchema = z.object({
   refresh_token: z.string().min(1, "refresh_token is required"),
 
   client_id: z.string().min(1, "client_id is required"),
+  client_secret: z.string().optional(),
 });
 
 export type RefreshTokenInput = z.infer<typeof refreshTokenSchema>;

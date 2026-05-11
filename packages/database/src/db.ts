@@ -16,5 +16,6 @@ export {
   ClientType,
   VerificationTokenType,
   Gender,
+  AppType,
 } from "./generated/prisma/enums.js";
 export type { User } from "./generated/prisma/client.js";

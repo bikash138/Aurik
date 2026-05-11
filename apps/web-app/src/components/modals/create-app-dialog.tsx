@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Plus, X, Loader2 } from "lucide-react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
+import { AppType } from "@aurik/database";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -72,6 +73,41 @@ export function CreateAppDialog({
                 {errors.name.message as string}
               </p>
             )}
+          </div>
+          <div className="space-y-1.5">
+            <Label>Application Type</Label>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => form.setValue("appType", AppType.CONFIDENTIAL)}
+                className={cn(
+                  "flex flex-col items-start p-3 rounded-xl border text-left transition-all",
+                  form.watch("appType") === AppType.CONFIDENTIAL
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "border-border hover:border-primary/50",
+                )}
+              >
+                <span className="text-xs font-bold text-heading">Server</span>
+                <span className="text-[10px] text-muted leading-tight mt-1">
+                  Secure backend apps. Uses Client Secret.
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={() => form.setValue("appType", AppType.PUBLIC)}
+                className={cn(
+                  "flex flex-col items-start p-3 rounded-xl border text-left transition-all",
+                  form.watch("appType") === AppType.PUBLIC
+                    ? "border-primary bg-primary/5 ring-1 ring-primary"
+                    : "border-border hover:border-primary/50",
+                )}
+              >
+                <span className="text-xs font-bold text-heading">SPA</span>
+                <span className="text-[10px] text-muted leading-tight mt-1">
+                  Frontend-only apps. No secret, uses PKCE.
+                </span>
+              </button>
+            </div>
           </div>
           <div className="space-y-2">
             <Label>Redirect URIs</Label>

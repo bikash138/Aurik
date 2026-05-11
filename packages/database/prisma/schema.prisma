@@ -25,6 +25,11 @@ enum VerificationTokenType {
   PASSWORD_RESET
 }
 
+enum AppType {
+  PUBLIC
+  CONFIDENTIAL
+}
+
 model User {
   id           String @id @default(uuid()) @db.Uuid
   email        String @unique @db.VarChar(322)
@@ -64,6 +69,7 @@ model Client {
 
   clientId         String  @unique @map("client_id") @db.Text
   clientSecretHash String? @map("client_secret_hash") @db.Text
+  appType          AppType @default(CONFIDENTIAL)
 
   redirectUris   String[] @map("redirect_uris")
   postLogoutUris String[] @map("post_logout_uris")

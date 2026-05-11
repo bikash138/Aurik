@@ -46,6 +46,7 @@ export async function GET(
       data: {
         clientId: client.clientId,
         name: client.appName,
+        appType: client.appType,
         logoUrl: client.logoUrl,
         clientUri: client.clientUri,
         policyUri: client.policyUri,
@@ -144,6 +145,7 @@ export async function PATCH(
       data: {
         clientId: updatedClient.clientId,
         name: updatedClient.appName,
+        appType: updatedClient.appType,
         logoUrl: updatedClient.logoUrl,
         clientUri: updatedClient.clientUri,
         policyUri: updatedClient.policyUri,

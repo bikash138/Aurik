@@ -30,6 +30,7 @@ export async function GET() {
     const applications = clients.map((client) => ({
       clientId: client.clientId,
       name: client.appName,
+      appType: client.appType,
       logoUrl: client.logoUrl,
       clientUri: client.clientUri,
       policyUri: client.policyUri,
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, redirectUris } = result.data;
+    const { name, redirectUris, appType } = result.data;
 
     const origin = new URL(redirectUris[0]).origin;
     const logoUrl = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`;
@@ -106,6 +107,7 @@ export async function POST(req: NextRequest) {
         appName: name,
         clientId,
         clientSecretHash: hashedSecret,
+        appType: appType || "CONFIDENTIAL",
         grantTypes: ["authorization_code", "refresh_token"],
         scopes: ["openid", "profile", "email"],
         redirectUris: redirectUris,
@@ -122,6 +124,7 @@ export async function POST(req: NextRequest) {
         clientId: client.clientId,
         clientSecret,
         name: client.appName,
+        appType: client.appType,
         logoUrl: client.logoUrl,
         clientUri: client.clientUri,
         policyUri: client.policyUri,
