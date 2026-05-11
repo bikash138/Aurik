@@ -46,6 +46,40 @@ export const AurikProvider: React.FC<{
 
   useEffect(() => {
     const initAuth = async () => {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const storedVerifier = sessionStorage.getItem("aurik_code_verifier");
+
+      //REdirected from the auth server with the code
+      if (code && storedVerifier) {
+        try {
+          const tokens = await TokenExchange.exchangeCode({
+            clientId,
+            code,
+            codeVerifier: storedVerifier,
+            redirectUri,
+          });
+
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
+          sessionStorage.removeItem("aurik_code_verifier");
+
+          if (tokens.refresh_token) {
+            localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh_token);
+          }
+          setAccessToken(tokens.access_token);
+          await hydrateUser(tokens.access_token);
+          setIsLoading(false);
+          return;
+        } catch (err) {
+          console.error("[Aurik SDK] Callback exchange failed:", err);
+        }
+      }
+
+      //Simple mount without any redirect
       const storedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
       if (storedRefreshToken) {
         try {
@@ -53,11 +87,9 @@ export const AurikProvider: React.FC<{
             clientId,
             refreshToken: storedRefreshToken,
           });
-
           setAccessToken(tokens.access_token);
-          if (tokens.refresh_token) {
+          if (tokens.refresh_token)
             localStorage.setItem(REFRESH_TOKEN_KEY, tokens.refresh_token);
-          }
           await hydrateUser(tokens.access_token);
         } catch (err) {
           localStorage.removeItem(REFRESH_TOKEN_KEY);
@@ -67,7 +99,7 @@ export const AurikProvider: React.FC<{
     };
 
     initAuth();
-  }, [clientId, hydrateUser]);
+  }, [clientId, redirectUri, hydrateUser]);
 
   const signin = async () => {
     const { challenge, verifier } = await PKCE.generate();
@@ -86,11 +118,36 @@ export const AurikProvider: React.FC<{
     window.location.href = `${Discovery.AURIK_DOMAIN}/o/authorize?${params.toString()}`;
   };
 
-  const signout = () => {
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    setAccessToken(null);
-    setUser(null);
-    window.location.href = `${Discovery.AURIK_DOMAIN}/o/logout?client_id=${clientId}`;
+  const signout = async () => {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+
+    try {
+      const promises: Promise<void>[] = [];
+      if (refreshToken) {
+        promises.push(
+          TokenExchange.revoke({
+            clientId,
+            token: refreshToken,
+            tokenTypeHint: "refresh_token",
+          }),
+        );
+      }
+      if (accessToken) {
+        promises.push(
+          TokenExchange.revoke({
+            clientId,
+            token: accessToken,
+            tokenTypeHint: "access_token",
+          }),
+        );
+      }
+
+      await Promise.all(promises).catch(() => {});
+    } finally {
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
+      setAccessToken(null);
+      setUser(null);
+    }
   };
 
   const getAccessToken = async () => {

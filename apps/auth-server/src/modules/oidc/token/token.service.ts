@@ -216,4 +216,21 @@ export class TokenService {
       scope: existingToken.client.scopes.join(" "),
     };
   }
+
+  public static async revokeToken(
+    token: string,
+    clientId: string,
+    typeHint?: string,
+  ) {
+    if (typeHint === "access_token") {
+      await TokenRepo.revokeAccessToken(token, clientId);
+    } else if (typeHint === "refresh_token") {
+      await TokenRepo.revokeRefreshToken(token, clientId);
+    } else {
+      await Promise.all([
+        TokenRepo.revokeAccessToken(token, clientId).catch(() => {}),
+        TokenRepo.revokeRefreshToken(token, clientId).catch(() => {}),
+      ]);
+    }
+  }
 }

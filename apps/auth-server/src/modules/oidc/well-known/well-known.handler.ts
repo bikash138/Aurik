@@ -15,7 +15,6 @@ export class WellKnownHandler {
         userinfo_endpoint: oidcConfig.userinfoEndpoint,
         jwks_uri: oidcConfig.jwksUri,
         revocation_endpoint: oidcConfig.revocationEndpoint,
-        end_session_endpoint: oidcConfig.endSessionEndpoint,
         scopes_supported: oidcConfig.scopesSupported,
         response_types_supported: oidcConfig.responseTypesSupported,
         grant_types_supported: oidcConfig.grantTypesSupported,

@@ -1,4 +1,4 @@
-import { AURIK_DOMAIN, fetchDiscovery } from "./discovery.js";
+import { Discovery } from "./discovery.js";
 
 export interface TokenResponse {
   access_token: string;
@@ -27,7 +27,7 @@ export class TokenExchange {
   public static async exchangeCode(
     options: ExchangeCodeOptions,
   ): Promise<TokenResponse> {
-    const config = await fetchDiscovery(AURIK_DOMAIN);
+    const config = await Discovery.get();
 
     const body = new URLSearchParams({
       grant_type: "authorization_code",
@@ -61,7 +61,7 @@ export class TokenExchange {
   public static async refresh(
     options: RefreshTokenOptions,
   ): Promise<TokenResponse> {
-    const config = await fetchDiscovery(AURIK_DOMAIN);
+    const config = await Discovery.get();
 
     const body = new URLSearchParams({
       grant_type: "refresh_token",
@@ -85,5 +85,36 @@ export class TokenExchange {
     }
 
     return response.json();
+  }
+
+  /**
+   * Revokes an access or refresh token
+   */
+  public static async revoke(options: {
+    clientId: string;
+    clientSecret?: string;
+    token: string;
+    tokenTypeHint?: "access_token" | "refresh_token";
+  }): Promise<void> {
+    const config = await Discovery.get();
+
+    const body = new URLSearchParams({
+      token: options.token,
+      client_id: options.clientId,
+    });
+
+    if (options.clientSecret) {
+      body.append("client_secret", options.clientSecret);
+    }
+
+    if (options.tokenTypeHint) {
+      body.append("token_type_hint", options.tokenTypeHint);
+    }
+
+    await fetch(config.revocation_endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
   }
 }

@@ -193,4 +193,39 @@ export class TokenHandler {
       });
     }
   }
+
+  public static async revoke(req: Request, res: Response) {
+    const { token, token_type_hint, client_id, client_secret } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        error: "invalid_request",
+        error_description: "token is required",
+      });
+    }
+
+    try {
+      const client = await TokenRepo.getClientById(client_id);
+      if (!client || !client.isActive) {
+        return res.status(401).json({ error: "invalid_client" });
+      }
+
+      if (client.appType === "CONFIDENTIAL") {
+        const isSecretValid = await TokenService.verifyClientSecret(
+          client_secret || "",
+          client.clientSecretHash || "",
+        );
+        if (!isSecretValid) {
+          return res.status(401).json({ error: "invalid_client" });
+        }
+      }
+
+      await TokenService.revokeToken(token, client_id, token_type_hint);
+
+      return res.status(200).json({ message: "Token revoked successfully" });
+    } catch (error) {
+      logger.error({ err: error }, "Token revocation failed");
+      return res.status(200).json({}); // RFC 7009 says always return 200 even if token not found
+    }
+  }
 }

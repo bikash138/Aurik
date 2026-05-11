@@ -71,4 +71,18 @@ export class TokenRepo {
       orderBy: { createdAt: "desc" },
     });
   }
+
+  public static async revokeAccessToken(token: string, clientId: string) {
+    return prisma.accessToken.updateMany({
+      where: { token, clientId, revoked: false },
+      data: { revoked: true },
+    });
+  }
+
+  public static async revokeRefreshToken(token: string, clientId: string) {
+    return prisma.refreshToken.updateMany({
+      where: { token, clientId, revoked: false },
+      data: { revoked: true },
+    });
+  }
 }

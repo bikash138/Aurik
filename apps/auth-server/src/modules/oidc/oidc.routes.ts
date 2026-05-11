@@ -12,6 +12,7 @@ router.get("/authorize", attachSession, AuthorizeHandler.authorize);
 router.get("/consent-session", attachSession, ConsentHandler.getConsentSession);
 router.post("/consent", attachSession, ConsentHandler.consent);
 router.post("/token", TokenHandler.token);
+router.post("/token/revoke", TokenHandler.revoke);
 router.get("/userinfo", validateAccessToken, UserinfoHandler.userinfo);
 
 export const oidcRoutes: Router = router;

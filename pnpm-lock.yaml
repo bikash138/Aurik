@@ -246,6 +246,9 @@ importers:
       '@aurik/typescript-config':
         specifier: workspace:*
         version: link:../typescript-config
+      '@types/express':
+        specifier: ^5.0.6
+        version: 5.0.6
       '@types/node':
         specifier: ^20
         version: 20.19.39
@@ -255,6 +258,9 @@ importers:
       '@types/react-dom':
         specifier: ^19
         version: 19.2.2(@types/react@19.2.2)
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       react:
         specifier: 19.2.4
         version: 19.2.4
