@@ -5,17 +5,28 @@ const optionalUrl = z.union([z.url("Invalid URL"), z.literal("")]);
 
 export const AppTypeSchema = z.enum(AppType);
 
-export const CreateAppSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, "Name is required")
-    .max(50, "Name is too long"),
-  appType: AppTypeSchema.default(AppType.CONFIDENTIAL),
-  redirectUris: z
-    .array(z.url("Invalid redirect URL"))
-    .min(1, "At least one redirect URI is required"),
-});
+export const CreateAppSchema = z
+  .object({
+    name: z
+      .string()
+      .trim()
+      .min(1, "Name is required")
+      .max(50, "Name is too long"),
+    appType: AppTypeSchema.default(AppType.CONFIDENTIAL),
+    pkceRequired: z.boolean().default(true),
+    redirectUris: z
+      .array(z.url("Invalid redirect URL"))
+      .min(1, "At least one redirect URI is required"),
+  })
+  .superRefine((data, ctx) => {
+    if (data.appType === AppType.PUBLIC && !data.pkceRequired) {
+      ctx.addIssue({
+        code: "custom",
+        message: "PKCE is mandatory for Public applications",
+        path: ["pkceRequired"],
+      });
+    }
+  });
 
 export const UpdateAppSchema = z.object({
   name: z

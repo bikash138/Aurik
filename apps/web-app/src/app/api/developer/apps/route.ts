@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { name, redirectUris, appType } = result.data;
+    const { name, redirectUris, appType, pkceRequired } = result.data;
 
     const origin = new URL(redirectUris[0]).origin;
     const logoUrl = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`;
@@ -108,6 +108,7 @@ export async function POST(req: NextRequest) {
         clientId,
         clientSecretHash: hashedSecret,
         appType: appType || "CONFIDENTIAL",
+        pkceRequired: !!pkceRequired,
         grantTypes: ["authorization_code", "refresh_token"],
         scopes: ["openid", "profile", "email"],
         redirectUris: redirectUris,

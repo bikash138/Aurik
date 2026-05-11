@@ -24,9 +24,6 @@ export interface RefreshTokenOptions {
 }
 
 export class TokenExchange {
-  /**
-   * Exchanges an authorization code for tokens (Access, Refresh, ID)
-   */
   public static async exchangeCode(
     options: ExchangeCodeOptions,
   ): Promise<TokenResponse> {

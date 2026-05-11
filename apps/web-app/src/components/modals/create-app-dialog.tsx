@@ -44,6 +44,14 @@ export function CreateAppDialog({
     }
   }, [fields, append]);
 
+  const appType = form.watch("appType");
+
+  useEffect(() => {
+    if (appType === AppType.PUBLIC) {
+      form.setValue("pkceRequired", true);
+    }
+  }, [appType, form]);
+
   const {
     register,
     handleSubmit,
@@ -107,6 +115,27 @@ export function CreateAppDialog({
                   Frontend-only apps. No secret, uses PKCE.
                 </span>
               </button>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 py-1">
+            <input
+              type="checkbox"
+              id="pkce-required"
+              {...register("pkceRequired")}
+              disabled={appType === AppType.PUBLIC}
+              className="h-4 w-4 rounded border-border text-primary focus:ring-primary accent-primary"
+            />
+            <div className="grid gap-1.5 leading-none">
+              <label
+                htmlFor="pkce-required"
+                className="text-xs font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Require PKCE
+              </label>
+              <p className="text-[10px] text-muted leading-tight">
+                Mandatory for SPAs. Uses code challenge for extra security.
+              </p>
             </div>
           </div>
           <div className="space-y-2">

@@ -31,7 +31,10 @@ export class AuthorizeService {
       );
     }
 
-    if (client.pkceRequired && !query.code_challenge) {
+    // PKCE Check
+    const isPkceMandatory = client.appType === "PUBLIC" || client.pkceRequired;
+    
+    if (isPkceMandatory && !query.code_challenge) {
       throw ApiError.validationError("PKCE_REQUIRED");
     }
 
