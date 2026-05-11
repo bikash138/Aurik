@@ -2,8 +2,8 @@
   "name": "@aurik/sdk",
   "version": "0.0.1",
   "description": "Official Aurik Identity SDK",
-  "publishConfig": { 
-    "access": "public" 
+  "publishConfig": {
+    "access": "public"
   },
   "type": "module",
   "main": "./dist/index.js",
@@ -14,7 +14,6 @@
     "dist",
     "README.md"
   ],
-
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -29,6 +28,14 @@
   },
   "devDependencies": {
     "@aurik/typescript-config": "workspace:*",
-    "@types/node": "^20"
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "react": "19.2.4",
+    "react-dom": "19.2.4"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
   }
 }

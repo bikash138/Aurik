@@ -1,4 +1,4 @@
-import { AURIK_DOMAIN, fetchDiscovery } from "./discovery.js";
+import { Discovery } from "./discovery.js";
 
 export interface AurikUser {
   sub: string;
@@ -13,7 +13,7 @@ export interface AurikUser {
 
 export class UserManager {
   public static async getUser(accessToken: string): Promise<AurikUser> {
-    const config = await fetchDiscovery(AURIK_DOMAIN);
+    const config = await Discovery.get();
 
     const response = await fetch(config.userinfo_endpoint, {
       method: "GET",
