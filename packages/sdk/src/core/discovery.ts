@@ -34,6 +34,9 @@ export async function fetchDiscovery(
   }
 
   cachedDiscovery = await res.json();
+  if (!cachedDiscovery) {
+    throw new Error("[Aurik SDK] Discovery document is empty or invalid.");
+  }
   return cachedDiscovery;
 }
 
