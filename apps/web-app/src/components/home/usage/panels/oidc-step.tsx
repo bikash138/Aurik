@@ -19,7 +19,7 @@ export function OIDCStep({ active }: { active: boolean }) {
       color: "text-[#1C2D1A] dark:text-[#DDE5D8]",
     },
     {
-      text: "  issuer: 'https://aurik.bikashshaw.in',",
+      text: "  issuer: 'https://aurik.cloud',",
       color: "text-[#1C2D1A] dark:text-[#DDE5D8]",
     },
     {

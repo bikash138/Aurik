@@ -3,6 +3,7 @@ import { Request, Response, NextFunction } from "express";
 import { WellKnownService } from "@/modules/oidc/well-known/well-known.service.js";
 import { prisma } from "@aurik/database";
 import { env } from "@/config/env.config.js";
+import { logger } from "@/config/logger.config.js";
 
 declare global {
   namespace Express {
@@ -61,6 +62,7 @@ export async function validateAccessToken(
 
     next();
   } catch (err: any) {
+    logger.error({ err }, "Access token validation failed");
     return res.status(401).json({
       error: "invalid_token",
       error_description: "Token is invalid or expired",

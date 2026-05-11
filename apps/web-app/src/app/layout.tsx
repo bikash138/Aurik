@@ -63,7 +63,7 @@ export const metadata: Metadata = {
     "auth platform",
   ],
 
-  authors: [{ name: "Aurik", url: "https://aurik.bikashshaw.in" }],
+  authors: [{ name: "Aurik", url: "https://aurik.cloud" }],
   creator: "Aurik",
   icons: {
     icon: "/logo_white.svg",
@@ -73,7 +73,7 @@ export const metadata: Metadata = {
 
   openGraph: {
     type: "website",
-    url: "https://aurik.bikashshaw.in",
+    url: "https://aurik.cloud",
     title: "Aurik",
     description:
       "The simple identity platform. Add secure sign-in, OAuth 2.0, and user management to any application with ease",

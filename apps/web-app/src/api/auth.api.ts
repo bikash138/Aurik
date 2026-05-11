@@ -56,4 +56,18 @@ export class AuthAPI {
     const response = await apiClient.post("/auth/signout");
     return response.data;
   }
+
+  public static async getConsentSession(key: string) {
+    const response = await apiClient.get(`/o/consent-session?key=${key}`);
+    return response.data;
+  }
+
+  public static async submitConsent(data: {
+    key: string;
+    action: "approved" | "denied";
+    scopes?: string[];
+  }) {
+    const response = await apiClient.post("/o/consent", data);
+    return response.data;
+  }
 }

@@ -2,14 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import {
-  Rocket,
-  BarChart3,
-  Users,
-  ShieldCheck,
-  ArrowRight,
-  Terminal,
-} from "lucide-react";
+import { Rocket, ArrowRight, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const DeveloperDashboardPage = () => {

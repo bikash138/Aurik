@@ -32,7 +32,7 @@ export default function Signin() {
     try {
       const result = await AuthAPI.signin(data);
       toast.success(result.message);
-      router.push(returnTo || "/profile");
+      window.location.href = returnTo || "/profile";
     } catch (error: any) {
       const message =
         error.response?.data?.error?.message || "Failed to sign in";

@@ -70,7 +70,7 @@ export class TokenService {
     })
       .setProtectedHeader({ alg: "RS256", kid: signingKey.kid })
       .setIssuedAt()
-      .setExpirationTime(client.accessTokenTTL)
+      .setExpirationTime(`${client.accessTokenTTL}s`)
       .sign(privateKey);
 
     const user = await TokenRepo.getUserById(userId);
@@ -96,7 +96,7 @@ export class TokenService {
     const idTokenValue = await new SignJWT(idTokenClaims)
       .setProtectedHeader({ alg: "RS256", kid: signingKey.kid })
       .setIssuedAt()
-      .setExpirationTime(client.accessTokenTTL)
+      .setExpirationTime(`${client.accessTokenTTL}s`)
       .sign(privateKey);
 
     const refreshTokenValue = crypto.randomBytes(32).toString("hex");
@@ -174,7 +174,7 @@ export class TokenService {
     })
       .setProtectedHeader({ alg: "RS256", kid: signingKey.kid })
       .setIssuedAt()
-      .setExpirationTime(existingToken.client.accessTokenTTL)
+      .setExpirationTime(`${existingToken.client.accessTokenTTL}s`)
       .sign(privateKey);
 
     const newRefreshTokenValue = crypto.randomBytes(32).toString("hex");

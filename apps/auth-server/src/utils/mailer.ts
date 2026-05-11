@@ -13,7 +13,7 @@ interface EmailOptions {
 export const sendEmail = async (options: EmailOptions) => {
   if (resend) {
     await resend.emails.send({
-      from: "Aurik Identity <onboarding@aurik.bikashshaw.in>",
+      from: "Aurik Identity <onboarding@aurik.cloud>",
       to: options.to,
       subject: options.subject,
       html: options.html,

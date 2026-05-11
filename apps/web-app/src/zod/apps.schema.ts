@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { AppType } from "@aurik/database";
+import { AppType } from "@aurik/database/enums";
 
 const optionalUrl = z.union([z.url("Invalid URL"), z.literal("")]);
 
@@ -47,5 +47,6 @@ export const UpdateAppSchema = z.object({
   isActive: z.boolean().optional(),
 });
 
+export type CreateAppFormValues = z.input<typeof CreateAppSchema>;
 export type CreateAppInput = z.infer<typeof CreateAppSchema>;
 export type UpdateAppInput = z.infer<typeof UpdateAppSchema>;

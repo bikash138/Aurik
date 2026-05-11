@@ -40,6 +40,7 @@ export class ConsentHandler {
   public static async consent(req: Request, res: Response) {
     try {
       const { key, action, scopes } = req.body;
+
       const session = await ConsentService.getConsentSession(key);
       const params = session.params as unknown as AuthorizeInput;
 

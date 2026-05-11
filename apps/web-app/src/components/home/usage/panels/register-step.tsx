@@ -28,7 +28,7 @@ export function RegisterStep({ active }: { active: boolean }) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white dark:bg-secondary/50 text-xs font-mono text-muted-foreground">
         <Globe className="w-3 h-3 shrink-0" />
-        aurik.bikashshaw.in/developer/apps
+        aurik.cloud/developer/apps
       </div>
       <div
         className="space-y-3 p-4 rounded-xl border bg-card"

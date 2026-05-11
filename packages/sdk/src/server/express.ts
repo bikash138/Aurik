@@ -73,13 +73,48 @@ export class AurikExpress extends AurikServer {
   public requireAuth() {
     return async (req: any, res: Response, next: NextFunction) => {
       const accessToken = req.cookies["aurik_access_token"];
-      if (!accessToken) return res.status(401).json({ error: "Unauthorized" });
+      const refreshToken = req.cookies["aurik_refresh_token"];
+
+      const setTokenCookies = (tokens: {
+        access_token: string;
+        refresh_token?: string;
+        expires_in: number;
+      }) => {
+        res.cookie("aurik_access_token", tokens.access_token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "lax",
+          maxAge: tokens.expires_in * 1000,
+        });
+        if (tokens.refresh_token) {
+          res.cookie("aurik_refresh_token", tokens.refresh_token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+          });
+        }
+      };
+
+      if (accessToken) {
+        try {
+          req.user = await this.getUser(accessToken);
+          return next();
+        } catch {}
+      }
+
+      if (!refreshToken) {
+        return res.status(401).json({ error: "Unauthorized" });
+      }
 
       try {
-        req.user = await this.getUser(accessToken);
-        next();
-      } catch (error) {
-        res.status(401).json({ error: "Session expired" });
+        const tokens = await this.refresh(refreshToken);
+        setTokenCookies(tokens);
+        req.user = await this.getUser(tokens.access_token);
+        return next();
+      } catch {
+        res.clearCookie("aurik_access_token");
+        res.clearCookie("aurik_refresh_token");
+        return res.status(401).json({ error: "Unauthorized" });
       }
     };
   }

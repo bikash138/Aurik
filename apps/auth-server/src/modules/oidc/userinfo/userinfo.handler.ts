@@ -6,11 +6,14 @@ import { ApiError } from "@/core/errors/api.error.js";
 export class UserinfoHandler {
   public static async userinfo(req: Request, res: Response) {
     try {
-      const userId = req.tokenPayload.sub;
-      const scopes = req.accessToken.scopes;
+      const userId = req.tokenPayload?.sub;
+      const scopes = req.accessToken?.scopes;
 
-      const claims = await UserinfoService.getUserinfo(userId, scopes);
+      if (!userId) {
+        return res.status(401).json({ error: "invalid_token", error_description: "Missing token payload" });
+      }
 
+      const claims = await UserinfoService.getUserinfo(userId, scopes ?? []);
       return res.status(200).json(claims);
     } catch (error) {
       logger.error({ err: error }, "UserInfo request failed");

@@ -9,20 +9,15 @@ import { ConsentService } from "@/modules/oidc/consent/consent.service.js";
 
 export class AuthorizeHandler {
   public static async authorize(req: Request, res: Response) {
-    logger.info({ query: req.query }, "Received authorize request");
     try {
       const query = authorizeSchema.parse(req.query);
-      logger.info("Authorize query parsed successfully");
 
       const client = await AuthorizeService.validateAuthorizeRequest(query);
-      logger.info({ clientId: client.clientId }, "Client validated");
 
       const userId = req.user?.id;
-      logger.info({ userId }, "Authentication check");
 
       if (!userId) {
-        logger.info("User not authenticated, redirecting to sign-in");
-        const returnTo = encodeURIComponent(req.originalUrl);
+        const returnTo = encodeURIComponent(`${env.AUTH_SERVER_BASE_URL}${req.originalUrl}`);
         return res.redirect(
           `${env.AUTH_UI_URL}/auth/signin?return_to=${returnTo}`,
         );
@@ -32,35 +27,28 @@ export class AuthorizeHandler {
         userId,
         client.id,
       );
-      logger.info({ authorizedScopes }, "Authorized scopes retrieved");
 
       const requestedScopes = query.scope.split(" ");
       const needsConsent = requestedScopes.some(
         (s) => !authorizedScopes.includes(s),
       );
-      logger.info({ needsConsent }, "Consent check");
 
       if (needsConsent) {
-        logger.info("Consent needed, creating consent session");
         const consentKey = await ConsentService.createConsentSession({
           userId,
           params: query,
         });
 
-        const redirectUrl = `${env.AUTH_UI_URL}/auth/consent?key=${consentKey}`;
-        logger.info({ redirectUrl }, "Redirecting to consent page");
-        return res.redirect(redirectUrl);
+        return res.redirect(`${env.AUTH_UI_URL}/auth/consent?key=${consentKey}`);
       }
 
       // If already consented, redirect back with code
-      logger.info("User already consented, proceeding with authorization");
       const redirectUrl = await AuthorizeService.issueAuthorizationCode(
         userId,
         client,
         query,
       );
 
-      logger.info({ redirectUrl }, "Redirecting back to client with code");
       return res.redirect(redirectUrl);
     } catch (error) {
       logger.error({ err: error }, "Authorization request failed");

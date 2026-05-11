@@ -2,7 +2,7 @@
 
 import { localClient } from "./api";
 import { CreateAppInput, UpdateAppInput } from "@/zod/apps.schema";
-import { AppType } from "@aurik/database";
+import { AppType } from "@aurik/database/enums";
 
 export interface Application {
   clientId: string;

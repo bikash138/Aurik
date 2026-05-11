@@ -2,7 +2,7 @@
 
 import { Loader2, RefreshCw } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
-import { AppType } from "@aurik/database";
+import { AppType } from "@aurik/database/enums";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { Plus, X, Loader2 } from "lucide-react";
 import { useFieldArray, UseFormReturn } from "react-hook-form";
-import { AppType } from "@aurik/database";
+import { AppType } from "@aurik/database/enums";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,13 +16,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { CreateAppInput } from "@/zod/apps.schema";
+import { CreateAppFormValues, CreateAppInput } from "@/zod/apps.schema";
 
 interface CreateAppDialogProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  form: UseFormReturn<CreateAppInput>;
-  onSubmit: (data: CreateAppInput) => void;
+  form: UseFormReturn<CreateAppFormValues>;
+  onSubmit: (data: CreateAppFormValues) => void;
   creating: boolean;
 }
 

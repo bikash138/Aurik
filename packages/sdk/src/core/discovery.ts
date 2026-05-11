@@ -14,7 +14,7 @@ export interface DiscoveryDocument {
 }
 
 export class Discovery {
-  public static readonly AURIK_DOMAIN = "http://localhost:3001";
+  public static readonly AURIK_DOMAIN = "http://localhost:8080";
   private static cachedDiscovery: DiscoveryDocument | null = null;
   public static async get(): Promise<DiscoveryDocument> {
     if (this.cachedDiscovery) {

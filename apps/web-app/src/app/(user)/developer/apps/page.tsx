@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { useApplications, useCreateApplication } from "@/hooks/use-developer";
-import { CreateAppSchema, CreateAppInput } from "@/zod/apps.schema";
+import { CreateAppSchema, CreateAppInput, CreateAppFormValues } from "@/zod/apps.schema";
 
 import { ApplicationsTable } from "@/components/developer/applications-table";
 import { ApplicationsTableSkeleton } from "@/components/skeletons/applications-table-skeleton";
@@ -26,7 +26,7 @@ export default function DeveloperOverviewPage() {
     name: string;
   } | null>(null);
 
-  const form = useForm<CreateAppInput>({
+  const form = useForm<CreateAppFormValues>({
     resolver: zodResolver(CreateAppSchema),
     defaultValues: {
       name: "",
@@ -34,8 +34,8 @@ export default function DeveloperOverviewPage() {
     },
   });
 
-  function onSubmit(data: CreateAppInput) {
-    createApp(data, {
+  function onSubmit(data: CreateAppFormValues) {
+    createApp(data as CreateAppInput, {
       onSuccess: (data) => {
         setDialogOpen(false);
         form.reset();

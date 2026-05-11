@@ -4,13 +4,18 @@ import { socialLinks } from "@/data/social-links";
 
 export default function Footer() {
   return (
-    <footer id="contact" className="w-full bg-(--color-page-bg) border-t border-(--color-border)">
+    <footer
+      id="contact"
+      className="w-full bg-(--color-page-bg) border-t border-(--color-border)"
+    >
       <div className="max-w-7xl mx-auto px-6 pt-16 pb-8">
         {/* Main grid */}
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr_1fr_1fr] gap-12 pb-12">
           {/* Brand column */}
           <div className="flex flex-col gap-4">
-            <span className="text-2xl font-semibold text-heading font-sans tracking-tight">Aurik</span>
+            <span className="text-2xl font-semibold text-heading font-sans tracking-tight">
+              Aurik
+            </span>
             <p className="text-body text-body-color max-w-xs">
               The simple identity platform. Add secure sign-in, OAuth 2.0, and
               user management to any application with ease.
@@ -60,7 +65,7 @@ export default function Footer() {
           <span className="text-sm text-body-color">
             © {new Date().getFullYear()} Aurik. All rights reserved.
           </span>
-          <span className="text-sm text-body-color">aurik.bikashshaw.in</span>
+          <span className="text-sm text-body-color">aurik.cloud</span>
         </div>
       </div>
     </footer>
