@@ -2,45 +2,17 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Plus,
-  AppWindow,
-  ExternalLink,
-  MoreHorizontal,
-  Loader2,
-  X,
-} from "lucide-react";
-import { useForm, useFieldArray } from "react-hook-form";
+import { Plus } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useApplications, useCreateApplication } from "@/hooks/use-developer";
-import { CredentialsDialog } from "@/components/developer/CredentialsDialog";
 import { CreateAppSchema, CreateAppInput } from "@/zod/apps.schema";
-import { cn } from "@/lib/utils";
+
+import { ApplicationsTable } from "@/components/developer/applications-table";
+import { ApplicationsTableSkeleton } from "@/components/skeletons/applications-table-skeleton";
+import { CreateAppDialog } from "@/components/modals/create-app-dialog";
+import { CredentialsDialog } from "@/components/modals/credentials-dialog";
 
 export default function DeveloperOverviewPage() {
   const router = useRouter();
@@ -81,7 +53,7 @@ export default function DeveloperOverviewPage() {
             Manage your applications and API credentials.
           </p>
         </div>
-        {apps.length > 0 && (
+        {apps.length > 0 && !isLoading && (
           <Button onClick={() => setDialogOpen(true)} size="sm">
             <Plus className="h-4 w-4 mr-1.5" />
             New Application
@@ -90,95 +62,12 @@ export default function DeveloperOverviewPage() {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center h-48">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-        </div>
-      ) : apps.length === 0 ? (
-        <EmptyState onCreateClick={() => setDialogOpen(true)} />
+        <ApplicationsTableSkeleton />
       ) : (
-        <div className="border border-border rounded-lg overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-secondary/40 border-b border-border">
-                <TableHead className="text-secondary-foreground font-medium">
-                  Name
-                </TableHead>
-                <TableHead className="text-secondary-foreground font-medium">
-                  Client ID
-                </TableHead>
-                <TableHead className="text-secondary-foreground font-medium">
-                  Status
-                </TableHead>
-                <TableHead className="text-secondary-foreground font-medium">
-                  Created
-                </TableHead>
-                <TableHead className="w-10" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {apps.map((app) => (
-                <TableRow
-                  key={app.clientId}
-                  className="cursor-pointer hover:bg-accent/50 border-b border-border"
-                  onClick={() => router.push(`/developer/apps/${app.clientId}`)}
-                >
-                  <TableCell className="font-medium text-heading">
-                    <div className="flex items-center gap-2">
-                      <div className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
-                        {app.logoUrl ? (
-                          <img
-                            src={app.logoUrl}
-                            alt=""
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <AppWindow className="h-4 w-4 text-secondary-foreground" />
-                        )}
-                      </div>
-                      {app.name}
-                    </div>
-                  </TableCell>
-                  <TableCell className="font-mono text-xs text-muted">
-                    {app.clientId}
-                  </TableCell>
-                  <TableCell>
-                    <span
-                      className={`badge ${app.isActive ? "badge-active" : "badge-revoked"}`}
-                    >
-                      {app.isActive ? "active" : "inactive"}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-muted text-sm">
-                    {new Date(app.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric",
-                    })}
-                  </TableCell>
-                  <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon-sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(`/developer/apps/${app.clientId}`)
-                          }
-                        >
-                          <ExternalLink className="h-4 w-4 mr-2" />
-                          View details
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+        <ApplicationsTable
+          apps={apps}
+          onCreateClick={() => setDialogOpen(true)}
+        />
       )}
 
       <CreateAppDialog
@@ -188,7 +77,7 @@ export default function DeveloperOverviewPage() {
           if (!v) form.reset();
         }}
         form={form}
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={onSubmit}
         creating={creating}
       />
 
@@ -204,145 +93,5 @@ export default function DeveloperOverviewPage() {
         description={`Your application ${createdApp?.name} has been created. Please copy your client secret now as it won't be shown again.`}
       />
     </div>
-  );
-}
-
-function EmptyState({ onCreateClick }: { onCreateClick: () => void }) {
-  return (
-    <div className="flex flex-col items-center justify-center border border-dashed border-border rounded-xl py-20 px-8 text-center">
-      <div className="h-14 w-14 rounded-full bg-secondary flex items-center justify-center mb-5">
-        <AppWindow className="h-7 w-7 text-secondary-foreground" />
-      </div>
-      <h2 className="text-lg font-semibold text-heading mb-2">
-        Create your first application
-      </h2>
-      <p className="text-sm text-muted max-w-sm mb-8">
-        Applications let you integrate Aurik authentication into your products.
-        Get a client ID and secret to get started.
-      </p>
-      <Button size="lg" onClick={onCreateClick}>
-        <Plus className="h-4 w-4 mr-2" />
-        Create Application
-      </Button>
-    </div>
-  );
-}
-
-interface CreateAppDialogProps {
-  open: boolean;
-  onOpenChange: (v: boolean) => void;
-  form: any;
-  onSubmit: () => void;
-  creating: boolean;
-}
-
-function CreateAppDialog({
-  open,
-  onOpenChange,
-  form,
-  onSubmit,
-  creating,
-}: CreateAppDialogProps) {
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "redirectUris",
-  });
-
-  const {
-    register,
-    formState: { errors },
-  } = form;
-
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>Create Application</DialogTitle>
-          <DialogDescription>
-            Give your application a name and at least one redirect URL.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={onSubmit} className="space-y-4 py-2">
-          <div className="space-y-1.5">
-            <Label htmlFor="app-name">Name</Label>
-            <Input
-              id="app-name"
-              placeholder="My App"
-              {...register("name")}
-              className={errors.name ? "border-destructive" : ""}
-            />
-            {errors.name && (
-              <p className="text-[10px] font-medium text-destructive">
-                {errors.name.message as string}
-              </p>
-            )}
-          </div>
-          <div className="space-y-2">
-            <Label>Redirect URIs</Label>
-            <div className="space-y-2">
-              {fields.map((field, idx) => (
-                <div key={field.id} className="space-y-1">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="https://example.com/callback"
-                      {...register(`redirectUris.${idx}` as const)}
-                      className={cn(
-                        "font-mono text-xs",
-                        errors.redirectUris?.[idx] ? "border-destructive" : "",
-                      )}
-                    />
-                    {fields.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-9 w-9 shrink-0"
-                        onClick={() => remove(idx)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    )}
-                  </div>
-                  {errors.redirectUris?.[idx] && (
-                    <p className="text-[10px] font-medium text-destructive">
-                      {errors.redirectUris[idx].message as string}
-                    </p>
-                  )}
-                </div>
-              ))}
-              {errors.redirectUris && !Array.isArray(errors.redirectUris) && (
-                <p className="text-[10px] font-medium text-destructive">
-                  {errors.redirectUris.message as string}
-                </p>
-              )}
-            </div>
-            <Button
-              type="button"
-              variant="link"
-              size="sm"
-              className="px-0 h-auto text-xs text-secondary-foreground hover:text-primary"
-              onClick={() => append("")}
-            >
-              <Plus className="h-3 w-3 mr-1" />
-              Add URI
-            </Button>
-          </div>
-          <DialogFooter className="pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={creating}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={creating}>
-              {creating && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
-              Create
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   );
 }

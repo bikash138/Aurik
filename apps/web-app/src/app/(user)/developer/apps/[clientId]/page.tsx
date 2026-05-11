@@ -41,7 +41,7 @@ import {
   useRegenerateSecret,
   useDeleteApplication,
 } from "@/hooks/use-developer";
-import { CredentialsDialog } from "@/components/developer/CredentialsDialog";
+import { CredentialsDialog } from "@/components/modals/credentials-dialog";
 import { UpdateAppSchema, UpdateAppInput } from "@/zod/apps.schema";
 import { cn } from "@/lib/utils";
 
@@ -50,8 +50,10 @@ export default function AppDetailPage() {
   const router = useRouter();
 
   const { data: app, isLoading } = useApplication(clientId);
-  const { mutate: updateApp, isPending: saving } = useUpdateApplication(clientId);
-  const { mutate: regenerateSecret, isPending: regening } = useRegenerateSecret(clientId);
+  const { mutate: updateApp, isPending: saving } =
+    useUpdateApplication(clientId);
+  const { mutate: regenerateSecret, isPending: regening } =
+    useRegenerateSecret(clientId);
   const { mutate: deleteApp, isPending: deleting } = useDeleteApplication();
 
   const [createdApp, setCreatedApp] = useState<{
@@ -86,7 +88,10 @@ export default function AppDetailPage() {
       form.reset({
         name: app.name,
         allowedCallbacks: app.allowedCallbacks,
-        allowedLogoutCallbacks: app.allowedLogoutCallbacks.length > 0 ? app.allowedLogoutCallbacks : [""],
+        allowedLogoutCallbacks:
+          app.allowedLogoutCallbacks.length > 0
+            ? app.allowedLogoutCallbacks
+            : [""],
         logoUrl: app.logoUrl || undefined,
         clientUri: app.clientUri || undefined,
         policyUri: app.policyUri || undefined,
@@ -174,7 +179,11 @@ export default function AppDetailPage() {
         <div className="flex items-center gap-4">
           <div className="h-12 w-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden border border-border">
             {logoPreview ? (
-              <img src={logoPreview} alt="" className="h-full w-full object-cover" />
+              <img
+                src={logoPreview}
+                alt=""
+                className="h-full w-full object-cover"
+              />
             ) : (
               <AppWindow className="h-6 w-6 text-secondary-foreground" />
             )}
@@ -192,18 +201,24 @@ export default function AppDetailPage() {
             disabled={saving}
             className={cn(
               "h-8 px-3 rounded-full border-2",
-              app.isActive 
-                ? "border-emerald-500/20 text-emerald-600 hover:bg-emerald-50" 
-                : "border-amber-500/20 text-amber-600 hover:bg-amber-50"
+              app.isActive
+                ? "border-emerald-500/20 text-emerald-600 hover:bg-emerald-50"
+                : "border-amber-500/20 text-amber-600 hover:bg-amber-50",
             )}
           >
             {app.isActive ? (
-              <><Power className="h-3 w-3 mr-1.5" /> Active</>
+              <>
+                <Power className="h-3 w-3 mr-1.5" /> Active
+              </>
             ) : (
-              <><PowerOff className="h-3 w-3 mr-1.5" /> Inactive</>
+              <>
+                <PowerOff className="h-3 w-3 mr-1.5" /> Inactive
+              </>
             )}
           </Button>
-          <span className={`badge ${app.isActive ? "badge-active" : "badge-revoked"}`}>
+          <span
+            className={`badge ${app.isActive ? "badge-active" : "badge-revoked"}`}
+          >
             {app.isActive ? "active" : "inactive"}
           </span>
         </div>
@@ -213,16 +228,21 @@ export default function AppDetailPage() {
         <TabsList className="mb-6">
           <TabsTrigger value="settings">Core Settings</TabsTrigger>
           <TabsTrigger value="branding">Branding & Links</TabsTrigger>
-          <TabsTrigger value="danger" className="text-destructive">Danger Zone</TabsTrigger>
+          <TabsTrigger value="danger" className="text-destructive">
+            Danger Zone
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="settings" className="space-y-6">
-          <Section title="General" description="Basic identification for your application.">
-            <FieldRow label="Application Name" error={form.formState.errors.name?.message}>
-              <Input
-                {...form.register("name")}
-                placeholder="My Awesome App"
-              />
+          <Section
+            title="General"
+            description="Basic identification for your application."
+          >
+            <FieldRow
+              label="Application Name"
+              error={form.formState.errors.name?.message}
+            >
+              <Input {...form.register("name")} placeholder="My Awesome App" />
             </FieldRow>
             <FieldRow label="Client ID">
               <div className="flex items-center gap-2">
@@ -288,21 +308,33 @@ export default function AppDetailPage() {
             <div className="flex items-center gap-4">
               <div className="h-16 w-16 rounded-xl border border-border bg-secondary flex items-center justify-center overflow-hidden shrink-0">
                 {logoPreview ? (
-                  <img src={logoPreview} alt="Logo" className="h-full w-full object-cover" />
+                  <img
+                    src={logoPreview}
+                    alt="Logo"
+                    className="h-full w-full object-cover"
+                  />
                 ) : (
                   <Upload className="h-6 w-6 text-secondary-foreground" />
                 )}
               </div>
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => fileInputRef.current?.click()}
+                >
                   <Upload className="h-3.5 w-3.5 mr-1.5" />
                   Change Logo
                 </Button>
                 {logoPreview && (
-                  <Button variant="ghost" size="sm" onClick={() => {
-                    setLogoPreview(null);
-                    form.setValue("logoUrl", undefined);
-                  }}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setLogoPreview(null);
+                      form.setValue("logoUrl", undefined);
+                    }}
+                  >
                     <X className="h-3.5 w-3.5 mr-1.5" />
                     Reset
                   </Button>
@@ -320,9 +352,15 @@ export default function AppDetailPage() {
 
           <Separator />
 
-          <Section title="Metadata & Legal" description="URLs used in the consent and login screens.">
+          <Section
+            title="Metadata & Legal"
+            description="URLs used in the consent and login screens."
+          >
             <div className="space-y-4">
-              <FieldRow label="Application Homepage" error={form.formState.errors.clientUri?.message}>
+              <FieldRow
+                label="Application Homepage"
+                error={form.formState.errors.clientUri?.message}
+              >
                 <div className="relative">
                   <Globe className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
                   <Input
@@ -333,7 +371,10 @@ export default function AppDetailPage() {
                 </div>
               </FieldRow>
 
-              <FieldRow label="Privacy Policy URL (Optional)" error={form.formState.errors.policyUri?.message}>
+              <FieldRow
+                label="Privacy Policy URL (Optional)"
+                error={form.formState.errors.policyUri?.message}
+              >
                 <div className="relative">
                   <Shield className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
                   <Input
@@ -344,7 +385,10 @@ export default function AppDetailPage() {
                 </div>
               </FieldRow>
 
-              <FieldRow label="Terms of Service URL (Optional)" error={form.formState.errors.tosUri?.message}>
+              <FieldRow
+                label="Terms of Service URL (Optional)"
+                error={form.formState.errors.tosUri?.message}
+              >
                 <div className="relative">
                   <FileText className="absolute left-3 top-2.5 h-4 w-4 text-muted" />
                   <Input
@@ -372,10 +416,12 @@ export default function AppDetailPage() {
               Danger Zone
             </h3>
             <p className="text-sm text-destructive/80 mb-6 max-w-xl">
-              Permanently delete this application and all associated data. This action is irreversible and will immediately break any integrations using this Client ID.
+              Permanently delete this application and all associated data. This
+              action is irreversible and will immediately break any integrations
+              using this Client ID.
             </p>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={() => setDeleteDialogOpen(true)}
               className="flex items-center gap-2"
             >
@@ -394,14 +440,24 @@ export default function AppDetailPage() {
               Rotate Client Secret
             </DialogTitle>
             <DialogDescription>
-              Generating a new secret will immediately invalidate the current one. Any application using the old secret will no longer be able to authenticate.
+              Generating a new secret will immediately invalidate the current
+              one. Any application using the old secret will no longer be able
+              to authenticate.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRegenDialogOpen(false)} disabled={regening}>
+            <Button
+              variant="outline"
+              onClick={() => setRegenDialogOpen(false)}
+              disabled={regening}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleRegenSecret} disabled={regening}>
+            <Button
+              variant="destructive"
+              onClick={handleRegenSecret}
+              disabled={regening}
+            >
               {regening && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Rotate Secret
             </Button>
@@ -417,14 +473,24 @@ export default function AppDetailPage() {
               Delete Application
             </DialogTitle>
             <DialogDescription>
-              Are you absolutely sure? This will permanently delete <strong>{app.name}</strong>. All users currently logged in via this app will be disconnected.
+              Are you absolutely sure? This will permanently delete{" "}
+              <strong>{app.name}</strong>. All users currently logged in via
+              this app will be disconnected.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deleting}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deleting}
+            >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete} disabled={deleting}>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={deleting}
+            >
               {deleting && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Confirm Delete
             </Button>
@@ -455,22 +521,30 @@ function Section({
     <div className="space-y-4">
       <div>
         <h3 className="text-sm font-semibold text-heading">{title}</h3>
-        {description && <p className="text-xs text-muted mt-0.5">{description}</p>}
+        {description && (
+          <p className="text-xs text-muted mt-0.5">{description}</p>
+        )}
       </div>
       {children}
     </div>
   );
 }
 
-function FieldRow({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
+function FieldRow({
+  label,
+  error,
+  children,
+}: {
+  label: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted">{label}</Label>
       {children}
       {error && (
-        <p className="text-[10px] font-medium text-destructive mt-1">
-          {error}
-        </p>
+        <p className="text-[10px] font-medium text-destructive mt-1">{error}</p>
       )}
     </div>
   );
@@ -479,7 +553,11 @@ function FieldRow({ label, error, children }: { label: string; error?: string; c
 function CopyField({ value, mono }: { value: string; mono?: boolean }) {
   return (
     <div className="flex items-center gap-2">
-      <Input readOnly value={value} className={cn("flex-1", mono && "font-mono text-xs")} />
+      <Input
+        readOnly
+        value={value}
+        className={cn("flex-1", mono && "font-mono text-xs")}
+      />
       <CopyButton value={value} />
     </div>
   );
@@ -533,11 +611,16 @@ function CallbackList({
               placeholder={placeholder}
               className={cn(
                 "flex-1 font-mono text-xs",
-                errors?.[idx] ? "border-destructive" : ""
+                errors?.[idx] ? "border-destructive" : "",
               )}
             />
             {fields.length > 1 && (
-              <Button type="button" variant="ghost" size="icon-sm" onClick={() => remove(idx)}>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-sm"
+                onClick={() => remove(idx)}
+              >
                 <X className="h-3.5 w-3.5" />
               </Button>
             )}

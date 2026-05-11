@@ -11,8 +11,8 @@ import {
   Pencil,
 } from "lucide-react";
 import { useProfile } from "@/hooks/use-profile";
-import { ProfilePageSkeleton } from "@/components/skeletons/Profile-Page-Skeleton";
-import { EditProfileModal } from "@/components/modals/Edit-Profile.modal";
+import { ProfilePageSkeleton } from "@/components/skeletons/profile-page-skeleton";
+import { EditProfileModal } from "@/components/modals/edit-profile.modal";
 
 const QUICK_LINKS = [
   { label: "My Password", icon: Key },
@@ -41,10 +41,10 @@ export default function ProfilePage() {
             <img
               src={user.profileImageUrl}
               alt={fullName}
-              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-lg ring-4 ring-[var(--color-border)]"
+              className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-lg ring-4 ring-(--color-border)"
             />
           ) : (
-            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[var(--color-brand)] flex items-center justify-center font-bold text-4xl sm:text-5xl shadow-lg ring-4 ring-[var(--color-border)] text-[var(--color-lime)]">
+            <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-(--color-brand) flex items-center justify-center font-bold text-4xl sm:text-5xl shadow-lg ring-4 ring-(--color-border) text-(--color-lime)">
               {fullName.charAt(0).toUpperCase()}
             </div>
           )}
