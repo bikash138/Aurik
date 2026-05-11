@@ -1,10 +1,26 @@
 {
   "name": "@aurik/sdk",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Official Aurik Identity SDK",
   "publishConfig": {
     "access": "public"
   },
+  "keywords": [
+    "auth",
+    "identity",
+    "oidc",
+    "sso",
+    "sdk",
+    "react",
+    "express",
+    "authentication",
+    "isomorphic"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bikash138/Aurik"
+  },
+  "homepage": "https://aurik.cloud",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -17,12 +33,19 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js"
+    },
+    "./react": {
+      "types": "./dist/react/context.d.ts",
+      "import": "./dist/react/context.js"
+    },
+    "./express": {
+      "types": "./dist/server/express.d.ts",
+      "import": "./dist/server/express.js"
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsup src/index.ts src/react/context.tsx src/server/express.ts --format esm --dts --minify --clean",
     "check-types": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
@@ -34,11 +57,12 @@
     "@types/react-dom": "^19",
     "express": "^5.2.1",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "tsup": "^8.5.1"
   },
   "peerDependencies": {
+    "express": "^4.0.0 || ^5.0.0",
     "react": "^18.0.0 || ^19.0.0",
-    "react-dom": "^18.0.0 || ^19.0.0",
-    "express": "^4.0.0 || ^5.0.0"
+    "react-dom": "^18.0.0 || ^19.0.0"
   }
 }
