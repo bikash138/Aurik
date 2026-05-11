@@ -1,159 +1,272 @@
-# Turborepo starter
+# Aurik — Own Your Identity Layer
 
-This Turborepo starter is maintained by the Turborepo core team.
+**Aurik** is an open-source identity platform that lets developers add secure sign-in, OAuth 2.0, and user management to any application. It implements the **OpenID Connect (OIDC)** and **OAuth 2.0** specifications from scratch, giving you full control of your own identity layer.
 
-## Using this example
+> Homepage: [aurik.cloud](https://aurik.cloud) · GitHub: [bikash138/Aurik](https://github.com/bikash138/Aurik)
 
-Run the following command:
+---
 
-```sh
-npx create-turbo@latest
+## What's in This Monorepo
+
+This is a **pnpm + Turborepo** monorepo with two applications and three shared packages.
+
+### Applications
+
+| App             | Path                                               | Description                                             |
+| --------------- | -------------------------------------------------- | ------------------------------------------------------- |
+| **Web App**     | [`apps/web-app`](./apps/web-app/README.md)         | Next.js 16 landing page + developer dashboard + auth UI |
+| **Auth Server** | [`apps/auth-server`](./apps/auth-server/README.md) | Express 5 OIDC / OAuth 2.0 identity server              |
+
+### Packages
+
+| Package                    | Path                                           | Description                                             |
+| -------------------------- | ---------------------------------------------- | ------------------------------------------------------- |
+| `@aurik/sdk`               | [`packages/sdk`](./packages/sdk/src/README.md) | Official isomorphic Aurik SDK (React, Express, core)    |
+| `@aurik/database`          | `packages/database`                            | Prisma client + PostgreSQL schema (shared between apps) |
+| `@aurik/logger`            | `packages/logger`                              | Pino-based structured logger                            |
+| `@aurik/zod`               | `packages/zod`                                 | Shared Zod validation schemas                           |
+| `@aurik/typescript-config` | `packages/typescript-config`                   | Base TypeScript configs                                 |
+
+---
+
+## Architecture Overview
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     User / Developer Browser                    │
+└────────────────────┬─────────────────────┬──────────────────────┘
+                     │                     │
+              ┌──────▼───────┐     ┌───────▼────────────┐
+              │   Web App    │     │  Client Application│
+              │  (Next.js)   │     │  (using @aurik/sdk)│
+              │  :3000       │     │                    │
+              └──────┬───────┘     └───────┬────────────┘
+                     │                     │
+                     │  OIDC / OAuth 2.0   │
+                     └──────────┬──────────┘
+                                │
+                    ┌───────────▼──────────────┐
+                    │      Auth Server         │
+                    │      (Express 5)         │
+                    │      :8080               │
+                    │                          │
+                    │  /.well-known/openid-    │
+                    │    configuration         │
+                    │  /.well-known/jwks.json  │
+                    │  /o/authorize            │
+                    │  /o/consent              │
+                    │  /o/token                │
+                    │  /o/token/revoke         │
+                    │  /o/userinfo             │
+                    │  /auth/signin|signup|... │
+                    └───────────┬──────────────┘
+                                │
+                    ┌───────────▼──────────────┐
+                    │       PostgreSQL         │
+                    │  (@aurik/database)       │
+                    │  Users, Clients, Tokens, │
+                    │  Consents, Signing Keys  │
+                    └──────────────────────────┘
 ```
 
-## What's inside?
+**Key design principles:**
 
-This Turborepo includes the following packages/apps:
+- The **Auth Server** is the single source of truth for identity. It issues, validates, and revokes all tokens.
+- The **Web App** hosts auth UI pages (sign-in, sign-up, consent, etc.) but all identity logic runs server-side in the Auth Server.
+- The **SDK** abstracts OIDC mechanics for client apps — PKCE, code exchange, silent refresh, and privacy-first token revocation — in both React SPA and Express SSR flavors.
 
-### Apps and Packages
+---
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+## Prerequisites
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- **Node.js** ≥ 18
+- **pnpm** 9.x
+- **PostgreSQL** (local or remote)
+- A [Resend](https://resend.com) API key (for transactional email)
 
-### Utilities
+---
 
-This Turborepo has some additional tools already setup for you:
+## Getting Started
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+### 1. Clone & Install
 
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+git clone https://github.com/bikash138/Aurik.git
+cd Aurik
+pnpm install
 ```
 
-Without global `turbo`, use your package manager:
+### 2. Configure Environment Variables
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+**Auth Server** — copy and fill in `apps/auth-server/.env.example`:
+
+```env
+PORT=8080
+NODE_ENV=development
+AUTH_SERVER_BASE_URL=http://localhost:8080
+AUTH_UI_URL=http://localhost:3000
+DATABASE_URL=postgresql://user:password@localhost:5432/aurik_db
+ENCRYPTION_KEY=your-32-character-hex-key
+RESEND_API_KEY=re_your_api_key
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+**Web App** — create `apps/web-app/.env`:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8080
+NODE_ENV=development
+DATABASE_URL=postgresql://user:password@localhost:5432/aurik_db
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+AWS_ENDPOINT_URL_S3=https://t3.storage.dev
+AWS_REGION=auto
+S3_BUCKET_NAME=aurik
 ```
 
-Without global `turbo`:
+### 3. Set Up the Database
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```bash
+cd packages/database
+pnpm prisma migrate dev
 ```
 
-### Develop
+### 4. Run Everything
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```bash
+# From the monorepo root — starts all apps in parallel via Turborepo
+pnpm dev
 ```
 
-Without global `turbo`, use your package manager:
+Or run each app individually:
 
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
+```bash
+# Auth Server
+cd apps/auth-server && pnpm dev   # http://localhost:8080
+
+# Web App
+cd apps/web-app && pnpm dev       # http://localhost:3000
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Monorepo Scripts
 
-```sh
-turbo dev --filter=web
+Run from the **root** of the repository:
+
+| Command            | Description                                             |
+| ------------------ | ------------------------------------------------------- |
+| `pnpm dev`         | Start all apps and packages in dev mode (Turborepo)     |
+| `pnpm build`       | Build all packages and apps in dependency order         |
+| `pnpm lint`        | Lint all workspaces                                     |
+| `pnpm check-types` | TypeScript type-check all workspaces                    |
+| `pnpm format`      | Format all `.ts`, `.tsx`, and `.md` files with Prettier |
+
+---
+
+## OIDC / OAuth 2.0 Flow
+
+```
+1. Client calls GET /o/authorize
+   (client_id, redirect_uri, PKCE challenge, scopes)
+
+2. Auth Server checks session → redirects to /auth/signin if unauthenticated
+
+3. User signs in → Auth Server creates a session
+
+4. Auth Server redirects to /auth/consent
+   → User approves requested scopes
+
+5. Auth Server issues an authorization_code
+   → redirects back to client redirect_uri
+
+6. Client calls POST /o/token
+   (code + PKCE verifier + optional client_secret)
+   → receives access_token, refresh_token, id_token
+
+7. Client calls GET /o/userinfo with Bearer access_token
+   → receives user profile claims
+
+8. On sign-out: client calls POST /o/token/revoke
+   for both access_token and refresh_token
 ```
 
-Without global `turbo`:
+All tokens are **RS256-signed JWTs**. The public keys are published at `/.well-known/jwks.json` and are rotated automatically on server startup.
 
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+---
+
+## Integrating with the SDK
+
+Add Aurik authentication to your own application in minutes using the official SDK.
+
+```bash
+npm install @aurik/sdk
 ```
 
-### Remote Caching
+Full SDK documentation → [`packages/sdk/src/README.md`](./packages/sdk/src/README.md)
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+### React (Public Client / SPA)
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+```tsx
+import { AurikProvider, useAurik, SigninButton } from "@aurik/sdk/react";
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+<AurikProvider
+  clientId="YOUR_CLIENT_ID"
+  redirectUri="http://localhost:3000/callback"
+>
+  <App />
+</AurikProvider>;
 ```
 
-Without global `turbo`, use your package manager:
+### Express (Confidential Client / SSR)
 
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
+```ts
+import { AurikExpress } from "@aurik/sdk/express";
+
+const aurik = new AurikExpress({
+  clientId: process.env.AURIK_CLIENT_ID!,
+  clientSecret: process.env.AURIK_CLIENT_SECRET!,
+  redirectUri: "http://localhost:4000/auth/callback",
+});
+
+app.get("/auth/signin", aurik.redirectToSignin());
+app.get(
+  "/auth/callback",
+  aurik.handleCallback({ successRedirect: "/", errorRedirect: "/login" }),
+);
+app.get("/protected", aurik.requireAuth(), handler);
+app.get("/auth/signout", aurik.handleSignout({ redirectUri: "/" }));
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+---
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+## Database Schema (Summary)
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Managed by **Prisma** in `packages/database`. Key entities:
 
-```sh
-turbo link
-```
+| Model               | Purpose                                                                   |
+| ------------------- | ------------------------------------------------------------------------- |
+| `User`              | End-user identity — email, hashed password, profile fields                |
+| `Client`            | Registered OAuth 2.0 application — credentials, redirect URIs, token TTLs |
+| `Session`           | Auth-UI sessions (httpOnly cookie-based, separate from OIDC tokens)       |
+| `ConsentSession`    | Temporary store of OIDC params during redirect flow                       |
+| `Consent`           | Persisted user ↔ client scope approvals                                   |
+| `AuthorizationCode` | Single-use, short-lived auth codes                                        |
+| `AccessToken`       | Issued JWTs (stored for revocation)                                       |
+| `RefreshToken`      | Rotating long-lived tokens with chain audit trail                         |
+| `SigningKey`        | RS256 RSA key pairs for JWT signing (auto-rotated)                        |
+| `VerificationToken` | Email verification & password reset tokens                                |
+| `AuditLog`          | Immutable security event log                                              |
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
+## Detailed Documentation
 
-## Useful Links
+- 📄 [**Web App** (apps/web-app/README.md)](./apps/web-app/README.md) — Next.js app, routes, env vars, typography system
+- 📄 [**Auth Server** (apps/auth-server/README.md)](./apps/auth-server/README.md) — OIDC endpoints, security design, API reference
+- 📄 [**SDK** (packages/sdk/src/README.md)](./packages/sdk/src/README.md) — Full API reference for React, Express, and core utilities
 
-Learn more about the power of Turborepo:
+---
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+## License
+
+MIT © [Bikash Shaw](https://bikashshaw.in)
