@@ -241,6 +241,15 @@ importers:
         specifier: 6.0.2
         version: 6.0.2
 
+  packages/sdk:
+    devDependencies:
+      '@aurik/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      '@types/node':
+        specifier: ^20
+        version: 20.19.39
+
   packages/typescript-config: {}
 
   packages/zod:
