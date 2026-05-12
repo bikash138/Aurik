@@ -1,3 +1,5 @@
+import path from "path";
+import { fileURLToPath } from "url";
 import express, { type Application } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
@@ -30,6 +32,10 @@ export class AppServer {
     this.app.use(express.json());
     this.app.use(express.urlencoded({ extended: true }));
     this.app.use(cookieParser());
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    this.app.use(express.static(path.join(__dirname, "public")));
   }
 
   private initializeRoutes() {
@@ -39,6 +45,12 @@ export class AppServer {
     this.app.use("/.well-known", discoveryRoutes);
     this.app.use("/o", oidcRoutes);
     this.app.use("/auth", authRoutes);
+    this.app.use((req, res) => {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const filePath = path.join(__dirname, "public", "not-found.html");
+      res.status(404).sendFile(filePath);
+    });
   }
 
   private initializeErrorHandling() {
