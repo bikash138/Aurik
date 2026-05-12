@@ -49,7 +49,14 @@ export function ProfileDialog() {
         ) : (
           <button className="relative w-9 h-9 rounded-full overflow-hidden hover:opacity-90 transition-opacity outline-none shrink-0">
             {user?.profileImageUrl ? (
-              <Image src={user.profileImageUrl} alt={fullName} fill className="object-cover" />
+              <Image 
+                src={user.profileImageUrl} 
+                alt={fullName} 
+                fill 
+                priority
+                sizes="36px"
+                className="object-cover" 
+              />
             ) : (
               <span className="w-full h-full bg-(--color-brand) flex items-center justify-center text-(--color-lime) font-semibold text-sm">
                 {fullName.charAt(0).toUpperCase()}
@@ -68,7 +75,13 @@ export function ProfileDialog() {
           ) : (
             <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0">
               {user?.profileImageUrl ? (
-                <Image src={user.profileImageUrl} alt={fullName} fill className="object-cover" />
+                <Image 
+                  src={user.profileImageUrl} 
+                  alt={fullName} 
+                  fill 
+                  sizes="48px"
+                  className="object-cover" 
+                />
               ) : (
                 <span className="w-full h-full bg-(--color-brand) flex items-center justify-center text-(--color-lime) font-bold text-xl">
                   {fullName.charAt(0).toUpperCase()}

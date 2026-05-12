@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   ArrowLeft,
   RefreshCw,
@@ -160,9 +161,11 @@ export default function AppDetailPage() {
         <div className="flex items-center gap-4">
           <div className="h-12 w-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden border border-border">
             {logoPreview ? (
-              <img
+              <Image
                 src={logoPreview}
                 alt=""
+                width={48}
+                height={48}
                 className="h-full w-full object-cover"
               />
             ) : (

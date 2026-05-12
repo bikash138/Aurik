@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { motion } from "motion/react";
 import { Globe } from "lucide-react";
 
@@ -71,8 +72,8 @@ export function SignInStep({ active }: { active: boolean }) {
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg bg-primary text-primary-foreground text-sm font-semibold cursor-pointer select-none"
         >
-          <img src="/logo_white.svg" className="w-4 h-4 dark:hidden" alt="" />
-          <img src="/logo.svg" className="w-4 h-4 hidden dark:block" alt="" />
+          <Image src="/logo_white.svg" width={16} height={16} className="w-4 h-4 dark:hidden" alt="" />
+          <Image src="/logo.svg" width={16} height={16} className="w-4 h-4 hidden dark:block" alt="" />
           Sign in with Aurik
         </motion.div>
 

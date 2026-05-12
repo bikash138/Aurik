@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SigninBodySchema, type SigninRequest } from "@aurik/zod/auth";
@@ -12,9 +13,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AuthAPI } from "@/api/auth.api";
-import { useState } from "react";
 
-export default function Signin() {
+function SigninContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("return_to");
@@ -151,5 +151,19 @@ export default function Signin() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function Signin() {
+  return (
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 bg-(--color-page-bg) flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-(--color-lime-dark) border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SigninContent />
+    </Suspense>
   );
 }

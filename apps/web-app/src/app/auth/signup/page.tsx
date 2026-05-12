@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignupBodySchema, type SignupRequest } from "@aurik/zod/auth";
@@ -12,9 +13,8 @@ import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { AuthAPI } from "@/api/auth.api";
-import { useState } from "react";
 
-export default function Signup() {
+function SignupContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const returnTo = searchParams.get("return_to");
@@ -144,10 +144,12 @@ export default function Signup() {
         {/* Right pane — form */}
         <CardContent className="flex-1 px-10 pt-8 pb-8 relative overflow-hidden">
           {/* Background logo watermark — right aligned, behind form */}
-          <img
+          <Image
             src="/logo_transparent_revert.svg"
             alt=""
             aria-hidden="true"
+            width={320}
+            height={320}
             className="absolute -right-20 top-1/2 -translate-y-1/2 w-80 opacity-[0.03] pointer-events-none select-none"
           />
 
@@ -260,5 +262,19 @@ export default function Signup() {
         </CardContent>
       </Card>
     </div>
+  );
+}
+
+export default function Signup() {
+  return (
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 bg-(--color-page-bg) flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-(--color-lime-dark) border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <SignupContent />
+    </Suspense>
   );
 }

@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Rocket, ArrowRight, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -10,10 +11,12 @@ const DeveloperDashboardPage = () => {
     <div className="p-8 max-w-5xl mx-auto w-full pb-20">
       {/* Hero Section */}
       <div className="relative overflow-hidden rounded-3xl bg-linear-to-br from-primary/10 via-background to-background border border-primary/10 p-12 mb-12">
-        <img
+        <Image
           src="/logo_transparent_revert.svg"
           alt=""
           aria-hidden="true"
+          width={400}
+          height={400}
           className="absolute -right-32 top-1/2 -translate-y-1/2 w-[400px] opacity-[0.03] pointer-events-none select-none"
         />
 

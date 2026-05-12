@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import {
   Search,
@@ -38,9 +39,13 @@ export default function ProfilePage() {
         {/* Avatar */}
         <div className="relative">
           {user?.profileImageUrl ? (
-            <img
+            <Image
               src={user.profileImageUrl}
               alt={fullName}
+              width={112}
+              height={112}
+              priority
+              sizes="(max-width: 640px) 96px, 112px"
               className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover shadow-lg ring-4 ring-(--color-border)"
             />
           ) : (

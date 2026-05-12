@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 export function MainFeatureCard() {
@@ -83,13 +84,17 @@ export function MainFeatureCard() {
               border: "0.5px solid rgba(255,255,255,0.1)",
             }}
           >
-            <img
+            <Image
               src="/logo_white.svg"
+              width={16}
+              height={16}
               className="w-4 h-4 dark:hidden"
               alt=""
             />
-            <img
+            <Image
               src="/logo.svg"
+              width={16}
+              height={16}
               className="w-4 h-4 hidden dark:block"
               alt=""
             />

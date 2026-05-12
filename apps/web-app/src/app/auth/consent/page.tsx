@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +9,7 @@ import { useConsent } from "@/hooks/use-consent";
 import { ConsentHeader } from "@/components/consent/ConsentHeader";
 import { ScopeList } from "@/components/consent/ScopeList";
 
-export default function ConsentPage() {
+function ConsentContent() {
   const searchParams = useSearchParams();
   const key = searchParams.get("key");
 
@@ -159,6 +160,20 @@ export default function ConsentPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function ConsentPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="fixed inset-0 bg-(--color-page-bg) flex items-center justify-center">
+          <div className="w-6 h-6 border-2 border-(--color-lime-dark) border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <ConsentContent />
+    </Suspense>
   );
 }
 

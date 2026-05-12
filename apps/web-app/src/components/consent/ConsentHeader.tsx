@@ -35,9 +35,11 @@ export function ConsentHeader({
           <div className="flex flex-col gap-3">
             <div className="w-12 h-12 rounded-2xl bg-(--color-brand) flex items-center justify-center overflow-hidden border border-(--color-border)">
               {logoUrl ? (
-                <img
+                <Image
                   src={logoUrl}
                   alt={clientName}
+                  width={48}
+                  height={48}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -118,9 +120,11 @@ export function ConsentHeader({
         </Link>
         <div className="w-12 h-12 rounded-2xl bg-(--color-brand) flex items-center justify-center overflow-hidden border border-(--color-border)">
           {logoUrl ? (
-            <img
+            <Image
               src={logoUrl}
               alt={clientName}
+              width={48}
+              height={48}
               className="w-full h-full object-cover"
             />
           ) : (

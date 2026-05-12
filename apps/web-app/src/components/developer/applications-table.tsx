@@ -2,6 +2,7 @@
 
 import { AppWindow, ExternalLink, MoreHorizontal, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -69,9 +70,11 @@ export function ApplicationsTable({ apps, onCreateClick }: ApplicationsTableProp
                 <div className="flex items-center gap-2">
                   <div className="h-7 w-7 rounded-md bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
                     {app.logoUrl ? (
-                      <img
+                      <Image
                         src={app.logoUrl}
                         alt=""
+                        width={28}
+                        height={28}
                         className="h-full w-full object-cover"
                       />
                     ) : (

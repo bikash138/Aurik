@@ -17,10 +17,10 @@ export interface Profile {
 export interface UpdateProfileData {
   firstName?: string;
   lastName?: string;
-  profileImageUrl: string;
-  gender: string | null;
-  dateOfBirth: string | null;
-  country: string | null;
+  profileImageUrl?: string;
+  gender?: string | null;
+  dateOfBirth?: string | null;
+  country?: string | null;
 }
 
 export interface ChangePasswordData {
@@ -69,6 +69,12 @@ export const ProfileAPI = {
     localClient
       .post<{ data: void }>("/profile/change-password", data)
       .then((r) => r.data.data),
+
+  uploadProfileImage: async (file: File | Blob) => {
+    const { uploadUrl, publicUrl } = await ProfileAPI.getUploadUrl();
+    await ProfileAPI.uploadToS3(uploadUrl, file as Blob);
+    return ProfileAPI.updateProfile({ profileImageUrl: publicUrl });
+  },
 
   deleteAccount: () =>
     localClient.delete<{ data: void }>("/profile").then((r) => r.data.data),

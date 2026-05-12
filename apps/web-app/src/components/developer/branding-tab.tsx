@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import { Globe, Shield, FileText, Upload, X, Loader2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
@@ -37,9 +38,11 @@ export function BrandingTab({
         <div className="flex items-center gap-4">
           <div className="h-16 w-16 rounded-xl border border-border bg-secondary flex items-center justify-center overflow-hidden shrink-0">
             {logoPreview ? (
-              <img
+              <Image
                 src={logoPreview}
                 alt="Logo"
+                width={64}
+                height={64}
                 className="h-full w-full object-cover"
               />
             ) : (

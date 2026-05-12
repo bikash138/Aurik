@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Cropper, { Point, Area } from "react-easy-crop";
@@ -180,9 +181,12 @@ export function EditProfileModal({
             />
             <div className="relative">
               {currentImageUrl ? (
-                <img
+                <Image
                   src={currentImageUrl}
                   alt={fullName}
+                  width={80}
+                  height={80}
+                  sizes="80px"
                   className="w-20 h-20 rounded-full object-cover ring-4 ring-(--color-border)"
                 />
               ) : (
