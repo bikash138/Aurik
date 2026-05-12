@@ -2,16 +2,25 @@
 CREATE TYPE "ClientType" AS ENUM ('WEB', 'NATIVE', 'SERVICE');
 
 -- CreateEnum
+CREATE TYPE "Gender" AS ENUM ('MALE', 'FEMALE', 'NON_BINARY', 'PREFER_NOT_TO_SAY');
+
+-- CreateEnum
 CREATE TYPE "VerificationTokenType" AS ENUM ('EMAIL_VERIFICATION', 'PASSWORD_RESET');
+
+-- CreateEnum
+CREATE TYPE "AppType" AS ENUM ('PUBLIC', 'CONFIDENTIAL');
 
 -- CreateTable
 CREATE TABLE "users" (
     "id" UUID NOT NULL,
     "email" VARCHAR(322) NOT NULL,
     "password_hash" VARCHAR(66) NOT NULL,
-    "first_name" VARCHAR(25),
-    "last_name" VARCHAR(25),
-    "profile_image_url" TEXT,
+    "first_name" VARCHAR(25) NOT NULL,
+    "last_name" VARCHAR(25) NOT NULL,
+    "profile_image_url" TEXT NOT NULL,
+    "date_of_birth" DATE,
+    "gender" "Gender",
+    "country" VARCHAR(100),
     "is_email_verified" BOOLEAN NOT NULL DEFAULT false,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "last_login_at" TIMESTAMP(3),
@@ -27,6 +36,7 @@ CREATE TABLE "clients" (
     "app_name" VARCHAR(50) NOT NULL,
     "client_id" TEXT NOT NULL,
     "client_secret_hash" TEXT,
+    "appType" "AppType" NOT NULL DEFAULT 'CONFIDENTIAL',
     "redirect_uris" TEXT[],
     "post_logout_uris" TEXT[],
     "grant_types" TEXT[],
@@ -37,10 +47,8 @@ CREATE TABLE "clients" (
     "access_token_ttl" INTEGER NOT NULL DEFAULT 3600,
     "refresh_token_ttl" INTEGER NOT NULL DEFAULT 604800,
     "user_id" UUID NOT NULL,
-    "brand_color_primary" VARCHAR(7),
-    "brand_color_secondary" VARCHAR(7),
-    "logo_url" TEXT,
-    "client_uri" TEXT,
+    "logo_url" TEXT NOT NULL,
+    "client_uri" TEXT NOT NULL,
     "policy_uri" TEXT,
     "tos_uri" TEXT,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -151,6 +159,7 @@ CREATE TABLE "verification_tokens" (
     "type" "VerificationTokenType" NOT NULL,
     "expires_at" TIMESTAMP(3) NOT NULL,
     "used_at" TIMESTAMP(3),
+    "return_to" TEXT,
     "user_id" UUID NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 

@@ -9,8 +9,8 @@ const envSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
   DATABASE_URL: z.url(),
-  ENCRYPTION_KEY: z.string(),
   RESEND_API_KEY: z.string().optional(),
+  COOKIE_DOMAIN: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

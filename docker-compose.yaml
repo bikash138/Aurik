@@ -1,0 +1,9 @@
+services:
+  auth-server:
+    build:
+      context: .
+      dockerfile: apps/auth-server/Dockerfile
+    container_name: aurik-auth-server
+    restart: always
+    ports:
+      - "8080:8080"

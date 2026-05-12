@@ -28,9 +28,8 @@ export class AurikExpress extends AurikServer {
         code_challenge_method: "S256",
       });
 
-      res.redirect(
-        `${Discovery.AURIK_DOMAIN}/o/authorize?${params.toString()}`,
-      );
+      const config = await Discovery.get();
+      res.redirect(`${config.authorization_endpoint}?${params.toString()}`);
     };
   }
 

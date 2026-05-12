@@ -20,7 +20,7 @@
   },
   "devDependencies": {
     "@aurik/typescript-config": "workspace:*",
-    "@types/node": "^22.15.3",
-    "typescript": "6.0.2"
+    "@types/node": "^25.7.0",
+    "typescript": "6.0.3"
   }
 }

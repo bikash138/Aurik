@@ -14,14 +14,19 @@ export interface DiscoveryDocument {
 }
 
 export class Discovery {
-  public static readonly AURIK_DOMAIN = "http://localhost:8080";
   private static cachedDiscovery: DiscoveryDocument | null = null;
+  private static currentDomain: string | null = null;
+
   public static async get(): Promise<DiscoveryDocument> {
-    if (this.cachedDiscovery) {
+    const targetDomain =
+      process.env.AURIK_AUTH_SERVER_URL || "https://auth.aurik.cloud";
+
+    if (this.cachedDiscovery && this.currentDomain === targetDomain) {
       return this.cachedDiscovery;
     }
 
-    const url = `${this.AURIK_DOMAIN}/.well-known/openid-configuration`;
+    this.currentDomain = targetDomain;
+    const url = `${targetDomain}/.well-known/openid-configuration`;
     const res = await fetch(url);
 
     if (!res.ok) {

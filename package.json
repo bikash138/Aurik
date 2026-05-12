@@ -1,5 +1,5 @@
 {
-  "name": "Aurik",
+  "name": "aurik",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -9,11 +9,11 @@
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
-    "prettier": "^3.7.4",
-    "turbo": "^2.9.9",
-    "typescript": "5.9.2"
+    "prettier": "^3.8.3",
+    "turbo": "^2.9.12",
+    "typescript": "6.0.3"
   },
-  "packageManager": "pnpm@9.0.0",
+  "packageManager": "pnpm@11.0.9",
   "engines": {
     "node": ">=18"
   }

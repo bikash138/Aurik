@@ -32,6 +32,7 @@ export class AuthHandler {
       secure: env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: EXPIRATION_TIMES.SESSION,
+      domain: env.COOKIE_DOMAIN,
     });
 
     res
@@ -78,6 +79,7 @@ export class AuthHandler {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
+      domain: env.COOKIE_DOMAIN,
     });
     res.status(200).json({ message: "Signed out successfully" });
   });

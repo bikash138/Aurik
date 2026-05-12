@@ -15,6 +15,7 @@ export class AppServer {
 
   constructor() {
     this.app = express();
+    this.app.set('trust proxy', 1)
     this.initializeMiddlewares();
     this.initializeRoutes();
     this.initializeErrorHandling();
