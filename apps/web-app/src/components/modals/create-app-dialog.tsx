@@ -63,7 +63,7 @@ export function CreateAppDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Create Application</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-body-color text-xs">
             Give your application a name and at least one redirect URL.
           </DialogDescription>
         </DialogHeader>
@@ -96,7 +96,7 @@ export function CreateAppDialog({
                 )}
               >
                 <span className="text-xs font-bold text-heading">Server</span>
-                <span className="text-[10px] text-muted leading-tight mt-1">
+                <span className="text-[10px] text-body-color leading-tight mt-1">
                   Secure backend apps. Uses Client Secret.
                 </span>
               </button>
@@ -111,7 +111,7 @@ export function CreateAppDialog({
                 )}
               >
                 <span className="text-xs font-bold text-heading">SPA</span>
-                <span className="text-[10px] text-muted leading-tight mt-1">
+                <span className="text-[10px] text-body-color leading-tight mt-1">
                   Frontend-only apps. No secret, uses PKCE.
                 </span>
               </button>
@@ -133,7 +133,7 @@ export function CreateAppDialog({
               >
                 Require PKCE
               </label>
-              <p className="text-[10px] text-muted leading-tight">
+              <p className="text-[10px] text-body-color leading-tight">
                 Mandatory for SPAs. Uses code challenge for extra security.
               </p>
             </div>
