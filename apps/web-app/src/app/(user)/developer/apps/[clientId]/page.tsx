@@ -6,8 +6,6 @@ import Image from "next/image";
 import {
   ArrowLeft,
   RefreshCw,
-  X,
-  AlertTriangle,
   AppWindow,
   Trash2,
   Power,
@@ -23,6 +21,7 @@ import {
   useRegenerateSecret,
   useDeleteApplication,
 } from "@/hooks/use-developer";
+import { ProfileAPI } from "@/api/profile.api";
 import { CredentialsDialog } from "@/components/modals/credentials-dialog";
 import { ConfirmationDialog } from "@/components/modals/confirmation-dialog";
 import { UpdateAppSchema, UpdateAppInput } from "@/zod/apps.schema";
@@ -36,12 +35,15 @@ export default function AppDetailPage() {
   const { clientId } = useParams<{ clientId: string }>();
   const router = useRouter();
 
-  const { data: app, isLoading } = useApplication(clientId);
+  const { data: app, isLoading, dataUpdatedAt } = useApplication(clientId);
   const { mutate: updateApp, isPending: saving } =
     useUpdateApplication(clientId);
   const { mutate: regenerateSecret, isPending: regening } =
     useRegenerateSecret(clientId);
   const { mutate: deleteApp, isPending: deleting } = useDeleteApplication();
+
+  const [newLogoBlob, setNewLogoBlob] = useState<Blob | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const [createdApp, setCreatedApp] = useState<{
     clientId: string;
@@ -50,9 +52,6 @@ export default function AppDetailPage() {
   } | null>(null);
   const [regenDialogOpen, setRegenDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-
-  // Logo handling
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const form = useForm<UpdateAppInput>({
     resolver: zodResolver(UpdateAppSchema),
@@ -83,7 +82,6 @@ export default function AppDetailPage() {
         tosUri: app.tosUri || undefined,
         isActive: app.isActive,
       });
-      setLogoPreview(app.logoUrl);
     }
   }, [app, form]);
 
@@ -100,30 +98,37 @@ export default function AppDetailPage() {
     });
   }
 
-  function handleUpdate(data: UpdateAppInput) {
-    const cleanedData: UpdateAppInput = {
-      ...data,
-      name: data.name?.trim() || undefined,
-      allowedCallbacks: data.allowedCallbacks?.filter(Boolean),
-      allowedLogoutCallbacks: data.allowedLogoutCallbacks?.filter(Boolean),
-      logoUrl: data.logoUrl || undefined,
-      clientUri: data.clientUri || undefined,
-      policyUri: data.policyUri || null,
-      tosUri: data.tosUri || null,
-    };
-    updateApp(cleanedData);
-  }
+  async function handleUpdate(data: UpdateAppInput) {
+    try {
+      const cleanedData: UpdateAppInput = {
+        ...data,
+        name: data.name?.trim() || undefined,
+        allowedCallbacks: data.allowedCallbacks?.filter(Boolean),
+        allowedLogoutCallbacks: data.allowedLogoutCallbacks?.filter(Boolean),
+        logoUrl: data.logoUrl || undefined,
+        clientUri: data.clientUri || undefined,
+        policyUri: data.policyUri || null,
+        tosUri: data.tosUri || null,
+      };
 
-  function handleLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      const result = ev.target?.result as string;
-      setLogoPreview(result);
-      form.setValue("logoUrl", result);
-    };
-    reader.readAsDataURL(file);
+      if (newLogoBlob) {
+        setIsUploading(true);
+        try {
+          const { uploadUrl, publicUrl } = await ProfileAPI.getUploadUrl("brand", clientId);
+          await ProfileAPI.uploadToS3(uploadUrl, newLogoBlob);
+          cleanedData.logoUrl = publicUrl;
+        } catch (error) {
+          console.error("Upload failed:", error);
+          return;
+        } finally {
+          setIsUploading(false);
+        }
+      }
+
+      updateApp(cleanedData);
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
   }
 
   function toggleStatus() {
@@ -145,6 +150,8 @@ export default function AppDetailPage() {
 
   if (!app) return null;
 
+  const currentLogo = form.watch("logoUrl");
+
   return (
     <div className="p-8 max-w-5xl mx-auto w-full pb-24">
       <Button
@@ -159,10 +166,10 @@ export default function AppDetailPage() {
 
       <div className="flex items-start justify-between mb-8">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-lg bg-secondary flex items-center justify-center shrink-0 overflow-hidden border border-border">
-            {logoPreview ? (
+          <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden border border-border">
+            {currentLogo ? (
               <Image
-                src={logoPreview}
+                src={`${currentLogo}${currentLogo.includes("blob:") ? "" : `?v=${dataUpdatedAt}`}`}
                 alt=""
                 width={48}
                 height={48}
@@ -231,13 +238,8 @@ export default function AppDetailPage() {
           <BrandingTab
             form={form}
             onSave={handleUpdate}
-            saving={saving}
-            logoPreview={logoPreview}
-            onLogoChange={handleLogoChange}
-            onResetLogo={() => {
-              setLogoPreview(null);
-              form.setValue("logoUrl", undefined);
-            }}
+            saving={saving || isUploading}
+            onLogoBlobChange={setNewLogoBlob}
           />
         </TabsContent>
 

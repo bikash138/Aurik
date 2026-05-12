@@ -1,12 +1,9 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import Image from "next/image";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import Cropper, { Point, Area } from "react-easy-crop";
-import { getCroppedImg } from "@/lib/crop-image";
-
+import { ImageUpload } from "@/components/upload-image";
 import {
   Dialog,
   DialogContent,
@@ -19,10 +16,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Camera, CalendarIcon, Loader2 } from "lucide-react";
+import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useUpdateProfile } from "@/hooks/use-profile";
+import { useUpdateProfile, useProfile } from "@/hooks/use-profile";
 import { Profile, ProfileAPI } from "@/api/profile.api";
 import { Button } from "@/components/ui/button";
 import { Gender } from "@aurik/database/enums";
@@ -45,15 +42,13 @@ export function EditProfileModal({
   onOpenChange,
   user,
 }: EditProfileModalProps) {
-  const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
-  const [imageToCrop, setImageToCrop] = useState<string | null>(null);
-  const [croppedBlob, setCroppedBlob] = useState<Blob | null>(null);
-  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
-  const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
-  const [zoom, setZoom] = useState(1);
-  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const { dataUpdatedAt } = useProfile();
+  const { mutateAsync: updateProfile, isPending: isUpdatingProfile } =
+    useUpdateProfile();
+  const [newImageBlob, setNewImageBlob] = useState<Blob | null>(null);
   const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const isPending = isUpdatingProfile || isUploading;
   const fullName =
     [user.firstName, user.lastName].filter(Boolean).join(" ") || "A";
 
@@ -94,58 +89,25 @@ export function EditProfileModal({
     }
   }, [open, user, reset]);
 
-  const currentImageUrl = localPreviewUrl || watch("profileImageUrl");
-
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const file = e.target.files[0];
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        setImageToCrop(reader.result as string);
-      });
-      reader.readAsDataURL(file);
-    }
-  };
-
-  const onCropComplete = (_: Area, pixels: Area) => {
-    setCroppedAreaPixels(pixels);
-  };
-
-  const handleCropDone = async () => {
-    if (!imageToCrop || !croppedAreaPixels) return;
-
-    try {
-      // 1. Get cropped image blob
-      const blob = await getCroppedImg(imageToCrop, croppedAreaPixels);
-
-      // 2. Create local preview
-      const previewUrl = URL.createObjectURL(blob);
-      setLocalPreviewUrl(previewUrl);
-      setCroppedBlob(blob);
-
-      // 3. Close cropper
-      setImageToCrop(null);
-    } catch (error: any) {
-      console.error("Crop error:", error);
-      toast.error("Failed to crop image");
-    }
-  };
-
   const onSubmit = async (values: UpdateProfileFormValues) => {
     try {
       let finalValues = { ...values };
 
-      // 1. If there's a new cropped image, upload it first
-      if (croppedBlob) {
+      if (newImageBlob) {
         setIsUploading(true);
-        const { uploadUrl, publicUrl } = await ProfileAPI.getUploadUrl();
-        console.log("UPLOAD URl", uploadUrl);
-        console.log("PUBLIC URL ", publicUrl);
-        const a = await ProfileAPI.uploadToS3(uploadUrl, croppedBlob);
-        finalValues.profileImageUrl = publicUrl;
+        try {
+          const { uploadUrl, publicUrl } = await ProfileAPI.getUploadUrl();
+          await ProfileAPI.uploadToS3(uploadUrl, newImageBlob);
+          finalValues.profileImageUrl = publicUrl;
+        } catch (error) {
+          console.error("Upload failed:", error);
+          toast.error("Failed to upload image");
+          return;
+        } finally {
+          setIsUploading(false);
+        }
       }
 
-      // 2. Update profile with all data
       await updateProfile(finalValues);
       toast.success("Profile updated successfully");
       onOpenChange(false);
@@ -155,8 +117,6 @@ export function EditProfileModal({
         error.response?.data?.error ||
         "Failed to update profile";
       toast.error(message);
-    } finally {
-      setIsUploading(false);
     }
   };
 
@@ -170,72 +130,24 @@ export function EditProfileModal({
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col">
-          {/* Avatar selector */}
-          <div className="flex flex-col items-center gap-3 px-6 py-5">
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={onFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-            <div className="relative">
-              {currentImageUrl ? (
-                <Image
-                  src={currentImageUrl}
-                  alt={fullName}
-                  width={80}
-                  height={80}
-                  sizes="80px"
-                  className="w-20 h-20 rounded-full object-cover ring-4 ring-(--color-border)"
-                />
-              ) : (
-                <div className="w-20 h-20 rounded-full bg-(--color-brand) flex items-center justify-center font-bold text-3xl text-(--color-lime) ring-4 ring-(--color-border)">
+          <div className="py-5">
+            <ImageUpload
+              value={
+                watch("profileImageUrl")
+                  ? `${watch("profileImageUrl")}?v=${dataUpdatedAt}`
+                  : null
+              }
+              onBlobChange={setNewImageBlob}
+              fallback={
+                <div className="w-20 h-20 rounded-full bg-(--color-brand) flex items-center justify-center font-bold text-3xl text-(--color-lime)">
                   {fullName.charAt(0).toUpperCase()}
                 </div>
-              )}
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={isPending || isUploading}
-                className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-(--color-brand) flex items-center justify-center ring-2 ring-(--color-page-bg-deep) hover:opacity-90 transition-opacity disabled:opacity-50"
-              >
-                <Camera className="w-3.5 h-3.5 text-(--color-lime)" />
-              </button>
-            </div>
-            <p className="text-xs text-body-color">
-              Click the camera to change photo
-            </p>
+              }
+              imageClassName="w-20 h-20 ring-4 ring-(--color-border)"
+              disabled={isPending}
+              loading={isPending}
+            />
           </div>
-
-          {imageToCrop && (
-            <div className="fixed inset-0 z-50 bg-(--color-page-bg-deep)/95 flex flex-col">
-              <div className="relative flex-1 bg-black/50">
-                <Cropper
-                  image={imageToCrop}
-                  crop={crop}
-                  zoom={zoom}
-                  aspect={1}
-                  onCropChange={setCrop}
-                  onCropComplete={onCropComplete}
-                  onZoomChange={setZoom}
-                />
-              </div>
-              <div className="p-6 flex gap-3 justify-end bg-(--color-page-bg-deep) border-t border-(--color-border)">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setImageToCrop(null)}
-                  disabled={isUploading}
-                >
-                  Cancel
-                </Button>
-                <Button type="button" onClick={handleCropDone}>
-                  Done
-                </Button>
-              </div>
-            </div>
-          )}
 
           <div className="flex flex-col gap-4 px-6 pb-6">
             {/* Name row */}
@@ -392,7 +304,7 @@ export function EditProfileModal({
               </Button>
               <Button
                 type="submit"
-                loading={isPending || isUploading}
+                loading={isPending}
                 className="px-4 py-2 rounded-lg text-sm font-medium bg-(--color-brand) text-(--color-lime) hover:opacity-90 transition-opacity"
               >
                 Save changes

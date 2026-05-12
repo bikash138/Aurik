@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@aurik/database";
-import { generateAvatarUploadUrl } from "@/lib/s3";
+import { generateUploadUrl, UploadType } from "@/lib/s3";
 import { logger } from "@/config/logger.config";
 
 async function getSessionUser(req: NextRequest) {
@@ -38,7 +38,13 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { uploadUrl, publicUrl } = await generateAvatarUploadUrl(user.id);
+    const searchParams = req.nextUrl.searchParams;
+    const type = (searchParams.get("type") as UploadType) || "avatar";
+    const clientId = searchParams.get("clientId");
+
+    const uploadId = type === "brand" && clientId ? clientId : user.id;
+
+    const { uploadUrl, publicUrl } = await generateUploadUrl(uploadId, type);
 
     return NextResponse.json({
       data: {

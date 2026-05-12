@@ -18,7 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function ProfileDialog() {
   const router = useRouter();
-  const { data: user, isLoading } = useProfile();
+  const { data: user, isLoading, dataUpdatedAt } = useProfile();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const fullName = user
     ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Aurik User"
@@ -50,7 +50,7 @@ export function ProfileDialog() {
           <button className="relative w-9 h-9 rounded-full overflow-hidden hover:opacity-90 transition-opacity outline-none shrink-0">
             {user?.profileImageUrl ? (
               <Image 
-                src={user.profileImageUrl} 
+                src={`${user.profileImageUrl}?v=${dataUpdatedAt}`} 
                 alt={fullName} 
                 fill 
                 priority
@@ -76,7 +76,7 @@ export function ProfileDialog() {
             <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0">
               {user?.profileImageUrl ? (
                 <Image 
-                  src={user.profileImageUrl} 
+                  src={`${user.profileImageUrl}?v=${dataUpdatedAt}`} 
                   alt={fullName} 
                   fill 
                   sizes="48px"

@@ -18,11 +18,9 @@ export async function getCroppedImg(
     throw new Error("No 2d context");
   }
 
-  // Set canvas size to the cropped area size
   canvas.width = pixelCrop.width;
   canvas.height = pixelCrop.height;
 
-  // Draw the cropped image onto the canvas
   ctx.drawImage(
     image,
     pixelCrop.x,
@@ -35,7 +33,6 @@ export async function getCroppedImg(
     pixelCrop.height,
   );
 
-  // As a blob (webp format for better performance)
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
@@ -56,7 +53,7 @@ function createImage(url: string): Promise<HTMLImageElement> {
     const image = new Image();
     image.addEventListener("load", () => resolve(image));
     image.addEventListener("error", (error) => reject(error));
-    image.setAttribute("crossOrigin", "anonymous"); // needed to avoid cross-origin issues
+    image.setAttribute("crossOrigin", "anonymous");
     image.src = url;
   });
 }

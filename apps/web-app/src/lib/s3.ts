@@ -9,7 +9,6 @@ import { env } from "@/config/env.config";
 const s3Client = new S3Client({
   region: env.AWS_REGION,
   endpoint: env.AWS_ENDPOINT_URL_S3,
-  forcePathStyle: true,
   credentials: {
     accessKeyId: env.AWS_ACCESS_KEY_ID,
     secretAccessKey: env.AWS_SECRET_ACCESS_KEY,
@@ -18,8 +17,10 @@ const s3Client = new S3Client({
 
 const BUCKET_NAME = env.S3_BUCKET_NAME;
 
-export const generateAvatarUploadUrl = async (userId: string) => {
-  const key = `avatar/${userId}.webp`;
+export type UploadType = "avatar" | "brand";
+
+export const generateUploadUrl = async (id: string, type: UploadType = "avatar") => {
+  const key = `${type}/${id}.webp`;
 
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,

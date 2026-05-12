@@ -42,7 +42,7 @@ export async function POST(
     }
 
     // Generate new secret
-    const newSecret = crypto.randomBytes(32).toString("hex");
+    const newSecret = `aurik_${crypto.randomBytes(32).toString("hex")}`;
     const hashedSecret = bcrypt.hashSync(newSecret, 10);
 
     await prisma.client.update({

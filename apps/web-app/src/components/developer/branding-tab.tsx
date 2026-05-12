@@ -1,33 +1,34 @@
 "use client";
 
-import { useRef } from "react";
-import Image from "next/image";
-import { Globe, Shield, FileText, Upload, X, Loader2 } from "lucide-react";
+import { Globe, Shield, FileText, Loader2 } from "lucide-react";
 import { UseFormReturn } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { UpdateAppInput } from "@/zod/apps.schema";
 import { Section, FieldRow } from "@/components/developer/form-layout";
+import { ImageUpload } from "@/components/upload-image";
 
 interface BrandingTabProps {
   form: UseFormReturn<UpdateAppInput>;
   onSave: (data: UpdateAppInput) => void;
   saving: boolean;
-  logoPreview: string | null;
-  onLogoChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onResetLogo: () => void;
+  onLogoBlobChange: (blob: Blob | null) => void;
 }
 
 export function BrandingTab({
   form,
   onSave,
   saving,
-  logoPreview,
-  onLogoChange,
-  onResetLogo,
+  onLogoBlobChange,
 }: BrandingTabProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const logoUrl = form.watch("logoUrl");
+  const onLogoChange = (blob: Blob | null) => {
+    onLogoBlobChange(blob);
+    if (blob) {
+      form.setValue("logoUrl", URL.createObjectURL(blob), { shouldDirty: true });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -35,49 +36,22 @@ export function BrandingTab({
         title="App Logo"
         description="Displayed on the consent screen to help users identify your app."
       >
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 rounded-xl border border-border bg-secondary flex items-center justify-center overflow-hidden shrink-0">
-            {logoPreview ? (
-              <Image
-                src={logoPreview}
-                alt="Logo"
-                width={64}
-                height={64}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <Upload className="h-6 w-6 text-secondary-foreground" />
-            )}
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              type="button"
-            >
-              <Upload className="h-3.5 w-3.5 mr-1.5" />
-              Change Logo
-            </Button>
-            {logoPreview && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={onResetLogo}
-                type="button"
-              >
-                <X className="h-3.5 w-3.5 mr-1.5" />
-                Reset
-              </Button>
-            )}
-          </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={onLogoChange}
+        <div className="flex items-center gap-6">
+          <ImageUpload
+            value={logoUrl}
+            onBlobChange={onLogoChange}
+            shape="round"
+            aspectRatio={1}
+            imageClassName="h-20 w-20 rounded-full"
+            className="items-start"
+            loading={saving}
           />
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-medium text-heading">Application Icon</p>
+            <p className="text-xs text-muted max-w-[240px]">
+              We recommend a square image of at least 128x128px.
+            </p>
+          </div>
         </div>
       </Section>
 
@@ -133,7 +107,10 @@ export function BrandingTab({
       </Section>
 
       <div className="flex justify-end pt-2">
-        <Button onClick={form.handleSubmit(onSave)} disabled={saving || !form.formState.isDirty}>
+        <Button
+          onClick={form.handleSubmit(onSave)}
+          disabled={saving || !form.formState.isDirty}
+        >
           {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
           Save Branding & Links
         </Button>

@@ -24,7 +24,7 @@ const QUICK_LINKS = [
 ];
 
 export default function ProfilePage() {
-  const { data: user, isLoading } = useProfile();
+  const { data: user, isLoading, dataUpdatedAt } = useProfile();
   const [editOpen, setEditOpen] = useState(false);
 
   if (isLoading) return <ProfilePageSkeleton />;
@@ -33,14 +33,18 @@ export default function ProfilePage() {
     ? `${user.firstName || ""} ${user.lastName || ""}`.trim() || "Aurik User"
     : "Aurik User";
 
+  const avatarUrl = user?.profileImageUrl
+    ? `${user.profileImageUrl}?v=${dataUpdatedAt}`
+    : null;
+
   return (
     <main className="flex-1 flex flex-col items-center px-4 py-12 sm:py-16">
       <div className="flex flex-col items-center gap-5 w-full max-w-xl">
         {/* Avatar */}
         <div className="relative">
-          {user?.profileImageUrl ? (
+          {avatarUrl ? (
             <Image
-              src={user.profileImageUrl}
+              src={avatarUrl}
               alt={fullName}
               width={112}
               height={112}

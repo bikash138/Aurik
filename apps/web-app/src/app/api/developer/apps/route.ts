@@ -97,8 +97,8 @@ export async function POST(req: NextRequest) {
     const logoUrl = `https://api.dicebear.com/7.x/identicon/svg?seed=${encodeURIComponent(name)}`;
     const clientUri = origin;
 
-    const clientId = crypto.randomBytes(16).toString("hex");
-    const clientSecret = crypto.randomBytes(32).toString("hex");
+    const clientId = `aurik_${crypto.randomBytes(16).toString("hex")}`;
+    const clientSecret = `aurik_${crypto.randomBytes(32).toString("hex")}`;
     const hashedSecret = bcrypt.hashSync(clientSecret, 10);
 
     const client = await prisma.client.create({

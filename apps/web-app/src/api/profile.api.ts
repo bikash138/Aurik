@@ -37,10 +37,11 @@ export const ProfileAPI = {
       .put<{ data: Profile }>("/profile", data)
       .then((r) => r.data.data),
 
-  getUploadUrl: () =>
+  getUploadUrl: (type: "avatar" | "brand" = "avatar", clientId?: string) =>
     localClient
       .get<{ data: { uploadUrl: string; publicUrl: string } }>(
         "/profile/upload-url",
+        { params: { type, clientId } },
       )
       .then((r) => r.data.data),
 
