@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { ConsentService } from "./consent.service.js";
-import { logger } from "@/config/logger.config.js";
-import { ApiError } from "@/core/errors/api.error.js";
+import { OidcError } from "../errors/oidc.error.js";
 import { AuthorizeRepo } from "../authorize/authorize.repo.js";
 import type { AuthorizeInput } from "../authorize/authorize.schema.js";
 import { env } from "@/config/env.config.js";
@@ -10,13 +9,14 @@ export class ConsentHandler {
   public static async getConsentSession(req: Request, res: Response) {
     try {
       const key = req.query.key as string;
-      if (!key) throw ApiError.validationError("KEY_REQUIRED");
+      if (!key)
+        throw new OidcError("invalid_request", "Consent key is required");
 
       const session = await ConsentService.getConsentSession(key);
       const params = session.params as unknown as AuthorizeInput;
 
       const client = await AuthorizeRepo.getClientById(params.client_id);
-      if (!client) throw ApiError.notFound("CLIENT_NOT_FOUND");
+      if (!client) throw new OidcError("invalid_client", "Client not found");
 
       return res.status(200).json({
         clientName: client.appName,
@@ -28,9 +28,13 @@ export class ConsentHandler {
         params,
       });
     } catch (error) {
-      logger.error({ err: error }, "Failed to get consent session");
-      const status = error instanceof ApiError ? error.statusCode : 400;
-      return res.status(status).json({
+      if (error instanceof OidcError) {
+        return res.status(200).json({
+          action: "redirect",
+          redirectUrl: error.toInternalErrorUrl(env.AUTH_UI_URL),
+        });
+      }
+      return res.status(400).json({
         error: "invalid_request",
         message: error instanceof Error ? error.message : "Failed",
       });
@@ -45,19 +49,19 @@ export class ConsentHandler {
       const params = session.params as unknown as AuthorizeInput;
 
       if (action === "denied") {
-        const redirectUri = new URL(params.redirect_uri);
-        redirectUri.searchParams.set("error", "access_denied");
-        if (params.state) {
-          redirectUri.searchParams.set("state", params.state);
-        }
+        const oidcError = new OidcError(
+          "access_denied",
+          "User rejected the request",
+          params.state,
+        );
         return res.status(200).json({
           action: "redirect",
-          redirectUrl: redirectUri.toString(),
+          redirectUrl: oidcError.toRedirectUrl(params.redirect_uri),
         });
       }
 
       const client = await AuthorizeRepo.getClientById(params.client_id);
-      if (!client) throw ApiError.notFound("CLIENT_NOT_FOUND");
+      if (!client) throw new OidcError("invalid_client", "Client not found");
 
       await ConsentService.saveConsentDecision({
         userId: session.userId,
@@ -75,9 +79,18 @@ export class ConsentHandler {
         redirectUrl: authUrl.toString(),
       });
     } catch (error) {
-      logger.error({ err: error }, "Consent processing failed");
-      const status = error instanceof ApiError ? error.statusCode : 400;
-      return res.status(status).json({
+      if (error instanceof OidcError) {
+        const redirectUrl =
+          error.metadata.code === "redirect_uri_mismatch"
+            ? error.toInternalErrorUrl(env.AUTH_UI_URL)
+            : error.toRedirectUrl((req.body.redirect_uri as string) || "");
+
+        return res.status(200).json({
+          action: "redirect",
+          redirectUrl,
+        });
+      }
+      return res.status(400).json({
         error: "invalid_request",
         message: error instanceof Error ? error.message : "Failed",
       });

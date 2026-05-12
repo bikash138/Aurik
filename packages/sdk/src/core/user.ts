@@ -23,17 +23,9 @@ export class UserManager {
     });
 
     if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error(
-          "[Aurik SDK] Unauthorized: Access token is invalid or expired.",
-        );
-      }
-
       const error = await response.json().catch(() => ({}));
-      throw new Error(
-        error.error_description ||
-          `[Aurik SDK] Failed to fetch user profile (Status: ${response.status})`,
-      );
+      const msg = error.error ? `[${error.error}] ${error.error_description}` : `Failed to fetch user profile (Status: ${response.status})`;
+      throw new Error(msg);
     }
 
     return response.json();

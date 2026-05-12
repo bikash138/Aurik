@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import type { AuthorizeInput } from "./authorize.schema.js";
-import { ApiError } from "@/core/errors/api.error.js";
+import { OidcError } from "../errors/oidc.error.js";
 import { AuthorizeRepo } from "./authorize.repo.js";
 import { EXPIRATION_TIMES } from "@/utils/constants.js";
 
@@ -9,15 +9,15 @@ export class AuthorizeService {
     const client = await AuthorizeRepo.getClientById(query.client_id);
 
     if (!client) {
-      throw ApiError.validationError("INVALID_CLIENT");
+      throw new OidcError("invalid_client", "The provided client_id does not exist.", query.state);
     }
 
     if (!client.isActive) {
-      throw ApiError.validationError("CLIENT_INACTIVE");
+      throw new OidcError("unauthorized_client", "The client application has been deactivated.", query.state);
     }
 
     if (!client.redirectUris.includes(query.redirect_uri)) {
-      throw ApiError.validationError("INVALID_REDIRECT_URI");
+      throw new OidcError("redirect_uri_mismatch", `The redirect_uri '${query.redirect_uri}' is not registered for this client.`, query.state);
     }
 
     const requestedScopes = query.scope.split(" ");
@@ -26,16 +26,14 @@ export class AuthorizeService {
     );
 
     if (invalidScopes.length > 0) {
-      throw ApiError.validationError(
-        `INVALID_SCOPES: ${invalidScopes.join(", ")}`,
-      );
+      throw new OidcError("invalid_scope", `The following scopes are not allowed: ${invalidScopes.join(", ")}`, query.state);
     }
 
     // PKCE Check
     const isPkceMandatory = client.appType === "PUBLIC" || client.pkceRequired;
     
     if (isPkceMandatory && !query.code_challenge) {
-      throw ApiError.validationError("PKCE_REQUIRED");
+      throw new OidcError("invalid_request", "PKCE (code_challenge) is required for this client type.", query.state);
     }
 
     return client;

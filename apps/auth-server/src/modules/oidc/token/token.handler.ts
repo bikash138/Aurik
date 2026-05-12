@@ -3,7 +3,7 @@ import { authorizationCodeSchema, refreshTokenSchema } from "./token.schema.js";
 import { TokenService } from "./token.service.js";
 import { TokenRepo } from "./token.repo.js";
 import { logger } from "@/config/logger.config.js";
-import { ApiError } from "@/core/errors/api.error.js";
+import { OidcError } from "../errors/oidc.error.js";
 
 export class TokenHandler {
   public static async token(req: Request, res: Response) {
@@ -17,21 +17,17 @@ export class TokenHandler {
       return TokenHandler.handleRefreshToken(req, res);
     }
 
-    return res.status(400).json({
-      error: "unsupported_grant_type",
-      error_description:
-        "grant_type must be authorization_code or refresh_token",
-    });
+    return new OidcError(
+      "unsupported_grant_type",
+      "grant_type must be authorization_code or refresh_token",
+    ).toJSONResponse(res);
   }
 
   public static async handleAuthorizationCode(req: Request, res: Response) {
     const result = authorizationCodeSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: "invalid_request",
-        error_description: result.error.issues,
-      });
+      return new OidcError("invalid_request", "Invalid request parameters").toJSONResponse(res);
     }
 
     const { code, client_id, client_secret, redirect_uri, code_verifier } =
@@ -41,20 +37,13 @@ export class TokenHandler {
       const client = await TokenRepo.getClientById(client_id);
 
       if (!client || !client.isActive) {
-        return res.status(401).json({
-          error: "invalid_client",
-          error_description: "Client not found or inactive",
-        });
+        throw new OidcError("invalid_client", "Client not found or inactive");
       }
 
-      // 2. Authentication Check based on AppType
+      // Authentication Check
       if (client.appType === "CONFIDENTIAL") {
         if (!client_secret) {
-          return res.status(401).json({
-            error: "invalid_client",
-            error_description:
-              "client_secret is required for confidential clients",
-          });
+          throw new OidcError("invalid_client", "Client secret is required");
         }
 
         const isSecretValid = await TokenService.verifyClientSecret(
@@ -63,10 +52,7 @@ export class TokenHandler {
         );
 
         if (!isSecretValid) {
-          return res.status(401).json({
-            error: "invalid_client",
-            error_description: "Invalid client_secret",
-          });
+          throw new OidcError("invalid_client", "Invalid client secret");
         }
       }
 
@@ -76,20 +62,14 @@ export class TokenHandler {
         redirect_uri,
       );
 
-      // 3. PKCE Check (Mandatory for PUBLIC apps)
+      // PKCE Check
       if (!authCode.codeChallenge && client.appType === "PUBLIC") {
-        return res.status(400).json({
-          error: "invalid_grant",
-          error_description: "PKCE is mandatory for public clients",
-        });
+        throw new OidcError("invalid_grant", "PKCE is mandatory for public clients");
       }
 
       if (authCode.codeChallenge) {
         if (!code_verifier) {
-          return res.status(400).json({
-            error: "invalid_grant",
-            error_description: "code_verifier is required for PKCE",
-          });
+          throw new OidcError("invalid_grant", "code_verifier is required for PKCE");
         }
 
         const pkceValid = await TokenService.verifyPKCE(
@@ -98,10 +78,7 @@ export class TokenHandler {
         );
 
         if (!pkceValid) {
-          return res.status(400).json({
-            error: "invalid_grant",
-            error_description: "PKCE verification failed",
-          });
+          throw new OidcError("invalid_grant", "PKCE verification failed");
         }
       }
 
@@ -124,13 +101,10 @@ export class TokenHandler {
 
       return res.status(200).json(tokens);
     } catch (error) {
-      logger.error({ err: error }, "Token exchange failed");
-      const status = error instanceof ApiError ? error.statusCode : 400;
-      return res.status(status).json({
-        error: "invalid_grant",
-        error_description:
-          error instanceof Error ? error.message : "Token exchange failed",
-      });
+      if (error instanceof OidcError) {
+        return error.toJSONResponse(res);
+      }
+      return new OidcError("invalid_grant", error instanceof Error ? error.message : "Token exchange failed").toJSONResponse(res);
     }
   }
 
@@ -138,10 +112,7 @@ export class TokenHandler {
     const result = refreshTokenSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({
-        error: "invalid_request",
-        error_description: result.error.issues,
-      });
+      return new OidcError("invalid_request", "Invalid refresh request").toJSONResponse(res);
     }
 
     const { refresh_token, client_id, client_secret } = result.data;
@@ -150,19 +121,12 @@ export class TokenHandler {
       const client = await TokenRepo.getClientById(client_id);
 
       if (!client || !client.isActive) {
-        return res.status(401).json({
-          error: "invalid_client",
-          error_description: "Client not found or inactive",
-        });
+        throw new OidcError("invalid_client", "Client not found or inactive");
       }
 
       if (client.appType === "CONFIDENTIAL") {
         if (!client_secret) {
-          return res.status(401).json({
-            error: "invalid_client",
-            error_description:
-              "client_secret is required for confidential clients",
-          });
+          throw new OidcError("invalid_client", "Client secret is required");
         }
 
         const isSecretValid = await TokenService.verifyClientSecret(
@@ -171,10 +135,7 @@ export class TokenHandler {
         );
 
         if (!isSecretValid) {
-          return res.status(401).json({
-            error: "invalid_client",
-            error_description: "Invalid client_secret",
-          });
+          throw new OidcError("invalid_client", "Invalid client secret");
         }
       }
 
@@ -184,13 +145,10 @@ export class TokenHandler {
       );
       return res.status(200).json(tokens);
     } catch (error) {
-      logger.error({ err: error }, "Token refresh failed");
-      const status = error instanceof ApiError ? error.statusCode : 400;
-      return res.status(status).json({
-        error: "invalid_grant",
-        error_description:
-          error instanceof Error ? error.message : "Token refresh failed",
-      });
+      if (error instanceof OidcError) {
+        return error.toJSONResponse(res);
+      }
+      return new OidcError("invalid_grant", error instanceof Error ? error.message : "Token refresh failed").toJSONResponse(res);
     }
   }
 
@@ -198,16 +156,13 @@ export class TokenHandler {
     const { token, token_type_hint, client_id, client_secret } = req.body;
 
     if (!token) {
-      return res.status(400).json({
-        error: "invalid_request",
-        error_description: "token is required",
-      });
+      return new OidcError("invalid_request", "Token is required").toJSONResponse(res);
     }
 
     try {
       const client = await TokenRepo.getClientById(client_id);
       if (!client || !client.isActive) {
-        return res.status(401).json({ error: "invalid_client" });
+        throw new OidcError("invalid_client", "Client not found or inactive");
       }
 
       if (client.appType === "CONFIDENTIAL") {
@@ -216,7 +171,7 @@ export class TokenHandler {
           client.clientSecretHash || "",
         );
         if (!isSecretValid) {
-          return res.status(401).json({ error: "invalid_client" });
+          throw new OidcError("invalid_client", "Invalid client_secret");
         }
       }
 
@@ -224,7 +179,9 @@ export class TokenHandler {
 
       return res.status(200).json({ message: "Token revoked successfully" });
     } catch (error) {
-      logger.error({ err: error }, "Token revocation failed");
+      if (error instanceof OidcError) {
+        return error.toJSONResponse(res);
+      }
       return res.status(200).json({}); // RFC 7009 says always return 200 even if token not found
     }
   }

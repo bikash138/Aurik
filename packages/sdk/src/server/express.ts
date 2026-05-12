@@ -64,8 +64,12 @@ export class AurikExpress extends AurikServer {
 
         res.clearCookie("aurik_verifier");
         res.redirect(options.successRedirect);
-      } catch (error) {
-        res.redirect(options.errorRedirect);
+      } catch (error: any) {
+        const errorUrl = new URL(options.errorRedirect, `${req.protocol}://${req.get("host")}`);
+        errorUrl.searchParams.set("error", "token_exchange_failed");
+        errorUrl.searchParams.set("message", error.message || "Failed to exchange authorization code");
+        
+        res.redirect(errorUrl.toString());
       }
     };
   }

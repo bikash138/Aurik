@@ -49,7 +49,8 @@ export class TokenExchange {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.error_description || "Token exchange failed");
+      const msg = error.error ? `[${error.error}] ${error.error_description}` : "Token exchange failed";
+      throw new Error(msg);
     }
 
     return response.json();
@@ -81,7 +82,8 @@ export class TokenExchange {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(error.error_description || "Token refresh failed");
+      const msg = error.error ? `[${error.error}] ${error.error_description}` : "Token refresh failed";
+      throw new Error(msg);
     }
 
     return response.json();
