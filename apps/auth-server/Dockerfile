@@ -1,30 +1,48 @@
-# Build & Deploy
-FROM node:22-alpine AS builder
+# Base
+FROM node:22-slim AS base
 
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+
 RUN corepack enable
+
+
+# Dependencies
+FROM base AS deps
 
 WORKDIR /app
 
-COPY . .
+# Copy turbo pruned package files
+COPY out/json/ .
 
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile --config.node-linker=hoisted
+
+
+# Builder
+FROM base AS builder
+
+WORKDIR /app
+
+COPY --from=deps /app ./
+
+COPY out/full/ .
 
 RUN pnpm --filter @aurik/database exec prisma generate
 
-RUN pnpm --filter @aurik/auth-server build
+RUN pnpm --filter @aurik/auth-server... build
 
-RUN pnpm --filter=@aurik/auth-server --prod deploy /app/deployed
+RUN CI=true pnpm install --prod --frozen-lockfile --config.node-linker=hoisted
+
 
 # Runner
-FROM node:22-alpine AS runner
-WORKDIR /app
+FROM node:22-slim AS runner
 
 ENV NODE_ENV=production
 
-COPY --from=builder /app/deployed .
+WORKDIR /app
+
+COPY --from=builder /app ./
 
 EXPOSE 8080
 
-CMD ["node", "dist/index.mjs"]
+CMD ["node", "apps/auth-server/dist/index.mjs"]
