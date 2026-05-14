@@ -31,16 +31,14 @@ export function createLogger(options: LoggerFactoryOptions): Logger {
 
   return pino({
     level: isDev ? "debug" : "info",
-    transport: isDev
-      ? {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
-            translateTime: "SYS:dd-mm-yyyy HH:MM:ss",
-            ignore: "pid,hostname",
-          },
-        }
-      : undefined,
+    transport: {
+      target: "pino-pretty",
+      options: {
+        colorize: true,
+        translateTime: "SYS:dd-mm-yyyy HH:MM:ss",
+        ignore: "pid,hostname",
+      },
+    },
   });
 }
 

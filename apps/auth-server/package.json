@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsdown src/index.ts --format esm --clean",
+    "build": "tsdown src/index.ts --format esm --clean && cp -r src/public dist/",
     "check-types": "tsc --noEmit",
     "start": "node dist/index.mjs",
     "dev": "tsx watch src/index.ts"
