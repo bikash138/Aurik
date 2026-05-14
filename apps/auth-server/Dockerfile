@@ -6,7 +6,6 @@ ENV PATH="$PNPM_HOME:$PATH"
 
 RUN corepack enable
 
-
 # Dependencies
 FROM base AS deps
 
@@ -15,7 +14,8 @@ WORKDIR /app
 # Copy turbo pruned package files
 COPY out/json/ .
 
-RUN pnpm install --frozen-lockfile --config.node-linker=hoisted
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile --config.node-linker=hoisted
 
 
 # Builder
