@@ -1,5 +1,6 @@
 import { EXPIRATION_TIMES } from "@/utils/constants.js";
-import { prisma, VerificationTokenType } from "@aurik/database";
+import { prisma } from "@aurik/database";
+import { VerificationTokenType } from "@aurik/database/enums";
 
 export class AuthRepo {
   public static async getUserByEmail(email: string) {

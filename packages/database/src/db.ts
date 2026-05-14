@@ -12,10 +12,4 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 export { prisma };
-export {
-  ClientType,
-  VerificationTokenType,
-  Gender,
-  AppType,
-} from "./generated/prisma/enums.js";
 export type { User } from "./generated/prisma/client.js";

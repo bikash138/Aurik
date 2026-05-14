@@ -1,4 +1,5 @@
-import { prisma, VerificationTokenType } from "@aurik/database";
+import { prisma } from "@aurik/database";
+import { VerificationTokenType } from "@aurik/database/enums";
 
 export class MailRepo {
   public static async createVerificationToken(

@@ -10,7 +10,7 @@ import type {
   SignupRequest,
   VerifyEmailRequest,
 } from "@aurik/zod/auth";
-import { VerificationTokenType } from "@aurik/database";
+import { VerificationTokenType } from "@aurik/database/enums";
 import { EXPIRATION_TIMES } from "@/utils/constants.js";
 
 export class AuthService {

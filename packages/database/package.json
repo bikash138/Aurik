@@ -9,14 +9,15 @@
       "default": "./dist/db.js"
     },
     "./enums": {
-      "types": "./dist/generated/prisma/enums.d.ts",
+      "types": "./src/generated/prisma/enums.ts",
       "default": "./dist/generated/prisma/enums.js"
     }
   },
   "scripts": {
-    "build": "tsc",
+    "generate": "pnpm prisma generate",
+    "build": "pnpm generate && tsc",
     "check-types": "tsc --noEmit",
-    "postinstall": "pnpm prisma generate"
+    "postinstall": "pnpm generate"
   },
   "devDependencies": {
     "@aurik/typescript-config": "workspace:*",
