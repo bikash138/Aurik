@@ -1,6 +1,6 @@
 import { ShieldAlert, TriangleAlert, ArrowLeft, Code2 } from "lucide-react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/logo";
 
 interface ErrorPageProps {
   searchParams: Promise<{

@@ -9,7 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
-import Provider from "./Provider";
+import Provider from "./provider";
 
 const dmSerifDisplay = DM_Serif_Display({
   subsets: ["latin"],

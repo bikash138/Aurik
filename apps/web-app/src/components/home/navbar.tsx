@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Menu, X } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { navLinks } from "@/data/nav-links";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/logo";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);

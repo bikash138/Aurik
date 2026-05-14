@@ -6,8 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, ShieldAlert } from "lucide-react";
 import { useConsent } from "@/hooks/use-consent";
-import { ConsentHeader } from "@/components/consent/ConsentHeader";
-import { ScopeList } from "@/components/consent/ScopeList";
+import { ConsentHeader } from "@/components/consent/consent-header";
+import { ScopeList } from "@/components/consent/scope-list";
 
 function ConsentContent() {
   const searchParams = useSearchParams();
@@ -176,4 +176,3 @@ export default function ConsentPage() {
     </Suspense>
   );
 }
-
