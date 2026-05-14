@@ -1,4 +1,4 @@
-import { DeveloperSidebar } from "@/components/user/apps/Developer-Sidebar";
+import { DeveloperSidebar } from "@/components/user/apps/developer-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
