@@ -6,7 +6,7 @@ export async function register() {
       logger.info("Validating environment variables...");
       await import("@/config/env.config");
 
-      const { prisma } = await import("@aurik/database");
+      const { prisma } = await import("@/lib/db");
       await prisma.$connect();
       logger.info("Database connected successfully");
     } catch (error) {
