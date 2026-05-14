@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  transpilePackages: ["@aurik/database", "@aurik/logger", "@aurik/zod"],
   images: {
     dangerouslyAllowSVG: true,
     remotePatterns: [
