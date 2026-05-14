@@ -15,7 +15,7 @@ WORKDIR /app
 COPY out/json/ .
 
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
-    pnpm install --frozen-lockfile --config.node-linker=hoisted
+    pnpm install --frozen-lockfile --config.node-linker=hoisted --ignore-scripts
 
 
 # Builder
@@ -27,11 +27,11 @@ COPY --from=deps /app ./
 
 COPY out/full/ .
 
-RUN pnpm --filter @aurik/database exec prisma generate
+RUN pnpm --filter @aurik/database run generate
 
 RUN pnpm --filter @aurik/auth-server... build
 
-RUN CI=true pnpm install --prod --frozen-lockfile --config.node-linker=hoisted
+RUN CI=true pnpm install --prod --frozen-lockfile --config.node-linker=hoisted --ignore-scripts
 
 
 # Runner
