@@ -1,45 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@aurik/database";
 import { getUser } from "@/lib/auth";
-import { logger } from "@/config/logger.config";
 import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
+import { asyncHandler } from "@/lib/api-handler";
+import { ApiError } from "@/lib/exceptions/api.error";
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ clientId: string }> },
-) {
-  try {
+export const POST = asyncHandler(
+  async (req: NextRequest, { params }: { params: Promise<{ clientId: string }> }) => {
     const user = await getUser();
     const { clientId } = await params;
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid session",
-          },
-        },
-        { status: 401 },
-      );
-    }
+    if (!user) throw ApiError.unauthorized();
 
     const existingClient = await prisma.client.findFirst({
       where: { clientId, userId: user.id },
     });
 
-    if (!existingClient) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "NOT_FOUND",
-            message: "Application not found",
-          },
-        },
-        { status: 404 },
-      );
-    }
+    if (!existingClient) throw ApiError.notFound("Application not found");
 
     // Generate new secret
     const newSecret = `aurik_${crypto.randomBytes(32).toString("hex")}`;
@@ -59,16 +37,6 @@ export async function POST(
         clientSecret: newSecret,
       },
     });
-  } catch (error) {
-    logger.error({ err: error }, "[SECRET_REGENERATE]");
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
-        },
-      },
-      { status: 500 },
-    );
   }
-}
+);
+

@@ -1,0 +1,11 @@
+services:
+  auth-server-beta:
+    build:
+      context: .
+      dockerfile: apps/auth-server/Dockerfile
+    container_name: aurik-auth-server-beta
+    restart: always
+    ports:
+      - "8081:8081"
+    env_file:
+      - apps/auth-server/.env.beta

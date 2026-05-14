@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@aurik/database";
 import { updateProfileSchema } from "@/zod/profile.schema";
+import { asyncHandler } from "@/lib/api-handler";
+import { ApiError } from "@/lib/exceptions/api.error";
 
 async function getSessionUser(req: NextRequest) {
   const token =
@@ -24,140 +26,63 @@ async function getSessionUser(req: NextRequest) {
   return session.user;
 }
 
-export async function GET(req: NextRequest) {
-  try {
-    const user = await getSessionUser(req);
+export const GET = asyncHandler(async (req: NextRequest) => {
+  const user = await getSessionUser(req);
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid session",
-          },
-        },
-        { status: 401 },
-      );
-    }
+  if (!user) throw ApiError.unauthorized();
 
-    return NextResponse.json({ data: user });
-  } catch (error) {
-    console.error("[PROFILE_GET]", error);
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
-        },
-      },
-      { status: 500 },
-    );
+  return NextResponse.json({ data: user });
+});
+
+export const PUT = asyncHandler(async (req: NextRequest) => {
+  const user = await getSessionUser(req);
+
+  if (!user) throw ApiError.unauthorized();
+
+  const body = await req.json();
+  const parsed = updateProfileSchema.safeParse(body);
+
+  if (!parsed.success) {
+    throw ApiError.validationError(parsed.error.issues[0].message);
   }
-}
 
-export async function PUT(req: NextRequest) {
-  try {
-    const user = await getSessionUser(req);
+  const {
+    firstName,
+    lastName,
+    profileImageUrl,
+    gender,
+    dateOfBirth,
+    country,
+  } = parsed.data;
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid session",
-          },
-        },
-        { status: 401 },
-      );
-    }
-
-    const body = await req.json();
-    const parsed = updateProfileSchema.safeParse(body);
-
-    if (!parsed.success) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: "Invalid request body",
-            details: parsed.error.issues,
-          },
-        },
-        { status: 400 },
-      );
-    }
-
-    const {
+  const updatedUser = await prisma.user.update({
+    where: { id: user.id },
+    data: {
       firstName,
       lastName,
       profileImageUrl,
-      gender,
-      dateOfBirth,
-      country,
-    } = parsed.data;
+      gender: gender,
+      dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
+      country: country ?? null,
+    } as any,
+  });
 
-    const updatedUser = await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        firstName,
-        lastName,
-        profileImageUrl,
-        gender: gender,
-        dateOfBirth: dateOfBirth ? new Date(dateOfBirth) : null,
-        country: country ?? null,
-      } as any,
-    });
+  return NextResponse.json({ data: updatedUser });
+});
 
-    return NextResponse.json({ data: updatedUser });
-  } catch (error) {
-    console.error("[PROFILE_PUT]", error);
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
-        },
-      },
-      { status: 500 },
-    );
-  }
-}
+export const DELETE = asyncHandler(async (req: NextRequest) => {
+  const user = await getSessionUser(req);
 
-export async function DELETE(req: NextRequest) {
-  try {
-    const user = await getSessionUser(req);
+  if (!user) throw ApiError.unauthorized();
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid session",
-          },
-        },
-        { status: 401 },
-      );
-    }
+  await prisma.user.delete({ where: { id: user.id } });
 
-    await prisma.user.delete({ where: { id: user.id } });
+  const response = NextResponse.json({
+    message: "Account deleted successfully",
+  });
 
-    const response = NextResponse.json({
-      message: "Account deleted successfully",
-    });
+  response.cookies.delete("sid");
 
-    response.cookies.delete("sid");
+  return response;
+});
 
-    return response;
-  } catch (error) {
-    console.error("[PROFILE_DELETE]", error);
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
-        },
-      },
-      { status: 500 },
-    );
-  }
-}

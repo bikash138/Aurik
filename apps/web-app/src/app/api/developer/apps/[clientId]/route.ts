@@ -1,44 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@aurik/database";
 import { getUser } from "@/lib/auth";
-import { logger } from "@/config/logger.config";
 import { UpdateAppSchema } from "@/zod/apps.schema";
+import { asyncHandler } from "@/lib/api-handler";
+import { ApiError } from "@/lib/exceptions/api.error";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ clientId: string }> },
-) {
-  try {
+export const GET = asyncHandler(
+  async (req: NextRequest, { params }: { params: Promise<{ clientId: string }> }) => {
     const user = await getUser();
     const { clientId } = await params;
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid session",
-          },
-        },
-        { status: 401 },
-      );
-    }
+    if (!user) throw ApiError.unauthorized();
 
     const client = await prisma.client.findFirst({
       where: { clientId, userId: user.id },
     });
 
-    if (!client) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "NOT_FOUND",
-            message: "Application not found",
-          },
-        },
-        { status: 404 },
-      );
-    }
+    if (!client) throw ApiError.notFound("Application not found");
 
     return NextResponse.json({
       success: true,
@@ -58,54 +36,20 @@ export async function GET(
         isActive: client.isActive,
       },
     });
-  } catch (error) {
-    logger.error({ err: error }, "[APP_GET]");
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
-        },
-      },
-      { status: 500 },
-    );
   }
-}
+);
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ clientId: string }> },
-) {
-  try {
+export const PATCH = asyncHandler(
+  async (req: NextRequest, { params }: { params: Promise<{ clientId: string }> }) => {
     const user = await getUser();
     const { clientId } = await params;
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid session",
-          },
-        },
-        { status: 401 },
-      );
-    }
+    if (!user) throw ApiError.unauthorized();
 
     const body = await req.json();
     const result = UpdateAppSchema.safeParse(body);
 
-    if (!result.success) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "VALIDATION_ERROR",
-            message: result.error.issues[0].message,
-          },
-        },
-        { status: 400 },
-      );
-    }
+    if (!result.success) throw ApiError.validationError(result.error.issues[0].message);
 
     const data = result.data;
 
@@ -113,17 +57,7 @@ export async function PATCH(
       where: { clientId, userId: user.id },
     });
 
-    if (!existingClient) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "NOT_FOUND",
-            message: "Application not found",
-          },
-        },
-        { status: 404 },
-      );
-    }
+    if (!existingClient) throw ApiError.notFound("Application not found");
 
     const updatedClient = await prisma.client.update({
       where: { id: existingClient.id },
@@ -157,55 +91,21 @@ export async function PATCH(
         isActive: updatedClient.isActive,
       },
     });
-  } catch (error) {
-    logger.error({ err: error }, "[APP_PATCH]");
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
-        },
-      },
-      { status: 500 },
-    );
   }
-}
+);
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ clientId: string }> },
-) {
-  try {
+export const DELETE = asyncHandler(
+  async (req: NextRequest, { params }: { params: Promise<{ clientId: string }> }) => {
     const user = await getUser();
     const { clientId } = await params;
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid session",
-          },
-        },
-        { status: 401 },
-      );
-    }
+    if (!user) throw ApiError.unauthorized();
 
     const existingClient = await prisma.client.findFirst({
       where: { clientId, userId: user.id },
     });
 
-    if (!existingClient) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "NOT_FOUND",
-            message: "Application not found",
-          },
-        },
-        { status: 404 },
-      );
-    }
+    if (!existingClient) throw ApiError.notFound("Application not found");
 
     await prisma.client.delete({
       where: { id: existingClient.id },
@@ -216,16 +116,6 @@ export async function DELETE(
       message: "Application deleted successfully",
       data: { message: "Application deleted successfully" },
     });
-  } catch (error) {
-    logger.error({ err: error }, "[APP_DELETE]");
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
-        },
-      },
-      { status: 500 },
-    );
   }
-}
+);
+
