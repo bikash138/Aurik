@@ -19,10 +19,7 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"],
-      "@aurik/database": ["../../packages/database/src/db.ts"],
-      "@aurik/logger": ["../../packages/logger/src/index.ts"],
-      "@aurik/zod": ["../../packages/zod/src/index.ts"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
