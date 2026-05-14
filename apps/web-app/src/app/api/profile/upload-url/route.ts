@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@aurik/database";
 import { generateUploadUrl, UploadType } from "@/lib/s3";
-import { logger } from "@/config/logger.config";
+import { asyncHandler } from "@/lib/api-handler";
+import { ApiError } from "@/lib/exceptions/api.error";
 
 async function getSessionUser(req: NextRequest) {
   const token =
@@ -22,46 +23,24 @@ async function getSessionUser(req: NextRequest) {
   return session.user;
 }
 
-export async function GET(req: NextRequest) {
-  try {
-    const user = await getSessionUser(req);
+export const GET = asyncHandler(async (req: NextRequest) => {
+  const user = await getSessionUser(req);
 
-    if (!user) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "UNAUTHORIZED",
-            message: "Missing or invalid session",
-          },
-        },
-        { status: 401 },
-      );
-    }
+  if (!user) throw ApiError.unauthorized();
 
-    const searchParams = req.nextUrl.searchParams;
-    const type = (searchParams.get("type") as UploadType) || "avatar";
-    const clientId = searchParams.get("clientId");
+  const searchParams = req.nextUrl.searchParams;
+  const type = (searchParams.get("type") as UploadType) || "avatar";
+  const clientId = searchParams.get("clientId");
 
-    const uploadId = type === "brand" && clientId ? clientId : user.id;
+  const uploadId = type === "brand" && clientId ? clientId : user.id;
 
-    const { uploadUrl, publicUrl } = await generateUploadUrl(uploadId, type);
+  const { uploadUrl, publicUrl } = await generateUploadUrl(uploadId, type);
 
-    return NextResponse.json({
-      data: {
-        uploadUrl,
-        publicUrl,
-      },
-    });
-  } catch (error) {
-    logger.error({ err: error }, "[UPLOAD_URL_GET]");
-    return NextResponse.json(
-      {
-        error: {
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
-        },
-      },
-      { status: 500 },
-    );
-  }
-}
+  return NextResponse.json({
+    data: {
+      uploadUrl,
+      publicUrl,
+    },
+  });
+});
+
