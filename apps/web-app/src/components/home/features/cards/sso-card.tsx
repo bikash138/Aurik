@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/logo";
 
 export function SSOCard() {
   const spokes = [

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/logo";
 
 interface ConsentHeaderProps {
   clientName: string;

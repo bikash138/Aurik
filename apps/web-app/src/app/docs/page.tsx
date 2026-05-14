@@ -1,6 +1,6 @@
 import { Construction, BookOpen, Terminal, ArrowRight } from "lucide-react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import { Logo } from "@/components/logo";
 
 export default function DocsComingSoon() {
   return (

@@ -1,8 +1,8 @@
-import Footer from "@/components/Footer";
-import { FAQ } from "@/components/home/FAQ";
+import Footer from "@/components/footer";
+import { FAQ } from "@/components/home/faq";
 import { Features } from "@/components/home/features";
-import { Hero } from "@/components/home/Hero";
-import { Navbar } from "@/components/home/Navbar";
+import { Hero } from "@/components/home/hero";
+import { Navbar } from "@/components/home/navbar";
 import { Usage } from "@/components/home/usage";
 import { Separator } from "@/components/ui/separator";
 
