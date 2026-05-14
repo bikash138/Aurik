@@ -15,7 +15,8 @@
   },
   "scripts": {
     "build": "tsc",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "postinstall": "pnpm prisma generate"
   },
   "devDependencies": {
     "@aurik/typescript-config": "workspace:*",
