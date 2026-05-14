@@ -6,6 +6,7 @@
   "exports": {
     ".": {
       "types": "./src/db.ts",
+      "development": "./src/db.ts",
       "default": "./dist/db.js"
     },
     "./enums": {
